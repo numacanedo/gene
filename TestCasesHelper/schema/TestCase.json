@@ -1,0 +1,2145 @@
+{
+  "jsonFileName": "AjaxSystemProperties-GetAllProperties-CRUD-1",
+  "baseURL": "http://192.168.1.123:8888/",
+  "username": "admin",
+  "password": "resolve",
+  "tests": [
+    {
+      "name": "ListSystemProperties",
+      "description": "List system properties and validate number of records retrieved records matched with the filter criteria used. No Pagination involve",
+      "path": "/resolve/service/sysproperties/getAllProperties",
+      "method": "GET",
+      "requestType": "URLENCODED_FORM_APPLICATION",
+      "responseType": "JSON_APPLICATION",
+      "queryParams": [
+        {
+          "key": "filter",
+          "type": "PLAIN",
+          "value": "[]"
+        },
+        {
+          "key": "page",
+          "type": "PLAIN",
+          "value": "1"
+        },
+        {
+          "key": "start",
+          "type": "PLAIN",
+          "value": "0"
+        },
+        {
+          "key": "limit",
+          "type": "PLAIN",
+          "value": "-1"
+        },
+        {
+          "key": "sort",
+          "type": "PLAIN",
+          "value": "[{\"property\":\"sysCreatedOn\",\"direction\":\"ASC\"}]"
+        }
+      ],
+      "handleResponse": {
+        "statusCode": 200,
+        "failLevel": "ERROR",
+        "failureMessage": "Error while listing properties",
+        "responseChecks": [
+          {
+            "sourceType": "JSON",
+            "sourceKey": "$.success",
+            "compareMethod": "EQUAL",
+            "targetType": "PLAIN",
+            "targetKey": "true"
+          },
+          {
+            "sourceType": "JSON",
+            "sourceKey": "$.message",
+            "compareMethod": "EQUAL",
+            "targetType": "PLAIN"
+          },
+          {
+            "sourceType": "JSON",
+            "sourceKey": "$.data",
+            "compareMethod": "EQUAL",
+            "targetType": "PLAIN"
+          },
+          {
+            "sourceType": "JSON",
+            "sourceKey": "$.records",
+            "compareMethod": "SIZEEQUAL",
+            "targetType": "JSON",
+            "targetKey": "$.total"
+          }
+        ]
+      }
+    },
+    {
+      "name": "ListSystemProperties",
+      "description": "List system properties and validate number of records retrived based on START parameter and filter criteria",
+      "path": "/resolve/service/sysproperties/getAllProperties",
+      "method": "GET",
+      "requestType": "URLENCODED_FORM_APPLICATION",
+      "responseType": "JSON_APPLICATION",
+      "queryParams": [
+        {
+          "key": "filter",
+          "type": "PLAIN",
+          "value": "[{\"field\":\"uname\",\"type\":\"auto\",\"condition\":\"startsWith\",\"value\":\"ControllerAPIProperty\"}]"
+        },
+        {
+          "key": "page",
+          "type": "PLAIN",
+          "value": "1"
+        },
+        {
+          "key": "start",
+          "type": "PLAIN",
+          "value": "0"
+        },
+        {
+          "key": "limit",
+          "type": "PLAIN",
+          "value": "5"
+        },
+        {
+          "key": "sort",
+          "type": "PLAIN",
+          "value": "[{\"property\":\"sysCreatedOn\",\"direction\":\"ASC\"}]"
+        }
+      ],
+      "handleResponse": {
+        "statusCode": 200,
+        "failLevel": "ERROR",
+        "failureMessage": "Error while listing properties",
+        "responseChecks": [
+          {
+            "sourceType": "JSON",
+            "sourceKey": "$.success",
+            "compareMethod": "EQUAL",
+            "targetType": "PLAIN",
+            "targetKey": "true"
+          },
+          {
+            "sourceType": "JSON",
+            "sourceKey": "$.message",
+            "compareMethod": "EQUAL",
+            "targetType": "PLAIN"
+          },
+          {
+            "sourceType": "JSON",
+            "sourceKey": "$.data",
+            "compareMethod": "EQUAL",
+            "targetType": "PLAIN"
+          },
+          {
+            "sourceType": "JSON",
+            "sourceKey": "$.total",
+            "compareMethod": "EQUAL",
+            "targetType": "PLAIN",
+            "targetKey": "0"
+          },
+          {
+            "sourceType": "JSON",
+            "sourceKey": "$.records",
+            "compareMethod": "SIZEEQUAL",
+            "targetType": "PLAIN",
+            "targetKey": "0"
+          }
+        ]
+      },
+      "testOps": [
+        {
+          "method": "ASSIGN",
+          "sourceType": "JSON",
+          "sourceKey": "$.total",
+          "targetKey": "ExpectedTotal"
+        }
+      ]
+    },
+    {
+      "name": "SaveAjaxSystemProperty",
+      "description": "Create System Propertyto be used for listing purposes - A - CRUD",
+      "path": "/resolve/service/sysproperties/saveSystemProperty",
+      "method": "POST",
+      "requestType": "JSON_APPLICATION",
+      "responseType": "JSON_APPLICATION",
+      "jsonPayload": {
+        "baseNode": "{\"sys_id\":\"\",\"UName\":\"\",\"UDescription\":\"\",\"UValue\":\"\"}",
+        "replaceJsonField": [
+          {
+            "key": "$.UName",
+            "type": "PLAIN",
+            "value": "ControllerAPIPropertyName_1"
+          },
+          {
+            "key": "$.UDescription",
+            "type": "PLAIN",
+            "value": "ControllerAPIPropertyDescription_1"
+          },
+          {
+            "key": "$.UValue",
+            "type": "PLAIN",
+            "value": "ControllerAPIProperty_Value_1"
+          }
+        ]
+      },
+      "handleResponse": {
+        "statusCode": 200,
+        "failLevel": "ERROR",
+        "failureMessage": "ERROR DURING PROPERTY SYSTEM CREATION ",
+        "responseChecks": [
+          {
+            "sourceType": "JSON",
+            "sourceKey": "$.success",
+            "compareMethod": "EQUAL",
+            "targetType": "PLAIN",
+            "targetKey": "true"
+          },
+          {
+            "sourceType": "JSON",
+            "sourceKey": "$.message",
+            "compareMethod": "EQUAL",
+            "targetType": "PLAIN"
+          },
+          {
+            "sourceType": "JSON",
+            "sourceKey": "$.records",
+            "compareMethod": "EQUAL",
+            "targetType": "PLAIN"
+          },
+          {
+            "sourceType": "JSON",
+            "sourceKey": "$.total",
+            "compareMethod": "EQUAL",
+            "targetType": "PLAIN",
+            "targetKey": "0"
+          }
+        ]
+      },
+      "testOps": [
+        {
+          "method": "ASSIGN",
+          "sourceType": "JSON",
+          "sourceKey": "$.data.sys_id",
+          "targetKey": "AjaxSystemProperty_SysId_1"
+        },
+        {
+          "method": "ASSIGN",
+          "sourceType": "JSON",
+          "sourceKey": "$.data.uname",
+          "targetKey": "AjaxSystemProperty_UName_1"
+        },
+        {
+          "method": "ASSIGN",
+          "sourceType": "JSON",
+          "sourceKey": "$.data.udescription",
+          "targetKey": "AjaxSystemProperty_UDescription_1"
+        },
+        {
+          "method": "ASSIGN",
+          "sourceType": "JSON",
+          "sourceKey": "$.data.uvalue",
+          "targetKey": "AjaxSystemProperty_UValue_1"
+        },
+        {
+          "method": "ADD",
+          "sourceType": "PLAIN",
+          "sourceKey": "1",
+          "targetKey": "ExpectedTotal"
+        }
+      ]
+    },
+    {
+      "name": "SaveAjaxSystemProperty",
+      "description": "Create System Propertyto be used for listing purposes - B - CRUD",
+      "path": "/resolve/service/sysproperties/saveSystemProperty",
+      "method": "POST",
+      "requestType": "JSON_APPLICATION",
+      "responseType": "JSON_APPLICATION",
+      "jsonPayload": {
+        "baseNode": "{\"sys_id\":\"\",\"UName\":\"\",\"UDescription\":\"\",\"UValue\":\"\"}",
+        "replaceJsonField": [
+          {
+            "key": "$.UName",
+            "type": "PLAIN",
+            "value": "ControllerAPIPropertyName_2"
+          },
+          {
+            "key": "$.UDescription",
+            "type": "PLAIN",
+            "value": "ControllerAPIPropertyDescription_2"
+          },
+          {
+            "key": "$.UValue",
+            "type": "PLAIN",
+            "value": "ControllerAPIProperty_Value_2"
+          }
+        ]
+      },
+      "handleResponse": {
+        "statusCode": 200,
+        "failLevel": "ERROR",
+        "failureMessage": "ERROR DURING PROPERTY SYSTEM CREATION ",
+        "responseChecks": [
+          {
+            "sourceType": "JSON",
+            "sourceKey": "$.success",
+            "compareMethod": "EQUAL",
+            "targetType": "PLAIN",
+            "targetKey": "true"
+          },
+          {
+            "sourceType": "JSON",
+            "sourceKey": "$.message",
+            "compareMethod": "EQUAL",
+            "targetType": "PLAIN"
+          },
+          {
+            "sourceType": "JSON",
+            "sourceKey": "$.records",
+            "compareMethod": "EQUAL",
+            "targetType": "PLAIN"
+          },
+          {
+            "sourceType": "JSON",
+            "sourceKey": "$.total",
+            "compareMethod": "EQUAL",
+            "targetType": "PLAIN",
+            "targetKey": "0"
+          }
+        ]
+      },
+      "testOps": [
+        {
+          "method": "ASSIGN",
+          "sourceType": "JSON",
+          "sourceKey": "$.data.sys_id",
+          "targetKey": "AjaxSystemProperty_SysId_2"
+        },
+        {
+          "method": "ASSIGN",
+          "sourceType": "JSON",
+          "sourceKey": "$.data.uname",
+          "targetKey": "AjaxSystemProperty_UName_2"
+        },
+        {
+          "method": "ASSIGN",
+          "sourceType": "JSON",
+          "sourceKey": "$.data.udescription",
+          "targetKey": "AjaxSystemProperty_UDescription_2"
+        },
+        {
+          "method": "ASSIGN",
+          "sourceType": "JSON",
+          "sourceKey": "$.data.uvalue",
+          "targetKey": "AjaxSystemProperty_UValue_2"
+        },
+        {
+          "method": "ADD",
+          "sourceType": "PLAIN",
+          "sourceKey": "1",
+          "targetKey": "ExpectedTotal"
+        }
+      ]
+    },
+    {
+      "name": "SaveAjaxSystemProperty",
+      "description": "Create System Propertyto be used for listing purposes -C - CRUD",
+      "path": "/resolve/service/sysproperties/saveSystemProperty",
+      "method": "POST",
+      "requestType": "JSON_APPLICATION",
+      "responseType": "JSON_APPLICATION",
+      "jsonPayload": {
+        "baseNode": "{\"sys_id\":\"\",\"UName\":\"\",\"UDescription\":\"\",\"UValue\":\"\"}",
+        "replaceJsonField": [
+          {
+            "key": "$.UName",
+            "type": "PLAIN",
+            "value": "ControllerAPIPropertyName_3"
+          },
+          {
+            "key": "$.UDescription",
+            "type": "PLAIN",
+            "value": "ControllerAPIPropertyDescription_3"
+          },
+          {
+            "key": "$.UValue",
+            "type": "PLAIN",
+            "value": "ControllerAPIProperty_Value_3"
+          }
+        ]
+      },
+      "handleResponse": {
+        "statusCode": 200,
+        "failLevel": "ERROR",
+        "failureMessage": "ERROR DURING PROPERTY SYSTEM CREATION ",
+        "responseChecks": [
+          {
+            "sourceType": "JSON",
+            "sourceKey": "$.success",
+            "compareMethod": "EQUAL",
+            "targetType": "PLAIN",
+            "targetKey": "true"
+          },
+          {
+            "sourceType": "JSON",
+            "sourceKey": "$.message",
+            "compareMethod": "EQUAL",
+            "targetType": "PLAIN"
+          },
+          {
+            "sourceType": "JSON",
+            "sourceKey": "$.records",
+            "compareMethod": "EQUAL",
+            "targetType": "PLAIN"
+          },
+          {
+            "sourceType": "JSON",
+            "sourceKey": "$.total",
+            "compareMethod": "EQUAL",
+            "targetType": "PLAIN",
+            "targetKey": "0"
+          }
+        ]
+      },
+      "testOps": [
+        {
+          "method": "ASSIGN",
+          "sourceType": "JSON",
+          "sourceKey": "$.data.sys_id",
+          "targetKey": "AjaxSystemProperty_SysId_3"
+        },
+        {
+          "method": "ASSIGN",
+          "sourceType": "JSON",
+          "sourceKey": "$.data.uname",
+          "targetKey": "AjaxSystemProperty_UName_3"
+        },
+        {
+          "method": "ASSIGN",
+          "sourceType": "JSON",
+          "sourceKey": "$.data.udescription",
+          "targetKey": "AjaxSystemProperty_UDescription_3"
+        },
+        {
+          "method": "ASSIGN",
+          "sourceType": "JSON",
+          "sourceKey": "$.data.uvalue",
+          "targetKey": "AjaxSystemProperty_UValue_3"
+        },
+        {
+          "method": "ADD",
+          "sourceType": "PLAIN",
+          "sourceKey": "1",
+          "targetKey": "ExpectedTotal"
+        }
+      ]
+    },
+    {
+      "name": "SaveAjaxSystemProperty",
+      "description": "Create System Propertyto be used for listing purposes -D- CRUD",
+      "path": "/resolve/service/sysproperties/saveSystemProperty",
+      "method": "POST",
+      "requestType": "JSON_APPLICATION",
+      "responseType": "JSON_APPLICATION",
+      "jsonPayload": {
+        "baseNode": "{\"sys_id\":\"\",\"UName\":\"\",\"UDescription\":\"\",\"UValue\":\"\"}",
+        "replaceJsonField": [
+          {
+            "key": "$.UName",
+            "type": "PLAIN",
+            "value": "ControllerAPIPropertyName_4"
+          },
+          {
+            "key": "$.UDescription",
+            "type": "PLAIN",
+            "value": "ControllerAPIPropertyDescription_4"
+          },
+          {
+            "key": "$.UValue",
+            "type": "PLAIN",
+            "value": "ControllerAPIProperty_Value_4"
+          }
+        ]
+      },
+      "handleResponse": {
+        "statusCode": 200,
+        "failLevel": "ERROR",
+        "failureMessage": "ERROR DURING PROPERTY SYSTEM CREATION ",
+        "responseChecks": [
+          {
+            "sourceType": "JSON",
+            "sourceKey": "$.success",
+            "compareMethod": "EQUAL",
+            "targetType": "PLAIN",
+            "targetKey": "true"
+          },
+          {
+            "sourceType": "JSON",
+            "sourceKey": "$.message",
+            "compareMethod": "EQUAL",
+            "targetType": "PLAIN"
+          },
+          {
+            "sourceType": "JSON",
+            "sourceKey": "$.records",
+            "compareMethod": "EQUAL",
+            "targetType": "PLAIN"
+          },
+          {
+            "sourceType": "JSON",
+            "sourceKey": "$.total",
+            "compareMethod": "EQUAL",
+            "targetType": "PLAIN",
+            "targetKey": "0"
+          }
+        ]
+      },
+      "testOps": [
+        {
+          "method": "ASSIGN",
+          "sourceType": "JSON",
+          "sourceKey": "$.data.sys_id",
+          "targetKey": "AjaxSystemProperty_SysId_4"
+        },
+        {
+          "method": "ASSIGN",
+          "sourceType": "JSON",
+          "sourceKey": "$.data.uname",
+          "targetKey": "AjaxSystemProperty_UName_4"
+        },
+        {
+          "method": "ASSIGN",
+          "sourceType": "JSON",
+          "sourceKey": "$.data.udescription",
+          "targetKey": "AjaxSystemProperty_UDescription_4"
+        },
+        {
+          "method": "ASSIGN",
+          "sourceType": "JSON",
+          "sourceKey": "$.data.uvalue",
+          "targetKey": "AjaxSystemProperty_UValue_4"
+        },
+        {
+          "method": "ADD",
+          "sourceType": "PLAIN",
+          "sourceKey": "1",
+          "targetKey": "ExpectedTotal"
+        }
+      ]
+    },
+    {
+      "name": "SaveAjaxSystemProperty",
+      "description": "Create System Propertyto be used for listing purposes - E - CRUD",
+      "path": "/resolve/service/sysproperties/saveSystemProperty",
+      "method": "POST",
+      "requestType": "JSON_APPLICATION",
+      "responseType": "JSON_APPLICATION",
+      "jsonPayload": {
+        "baseNode": "{\"sys_id\":\"\",\"UName\":\"\",\"UDescription\":\"\",\"UValue\":\"\"}",
+        "replaceJsonField": [
+          {
+            "key": "$.UName",
+            "type": "PLAIN",
+            "value": "ControllerAPIPropertyName_5"
+          },
+          {
+            "key": "$.UDescription",
+            "type": "PLAIN",
+            "value": "ControllerAPIPropertyDescription_5"
+          },
+          {
+            "key": "$.UValue",
+            "type": "PLAIN",
+            "value": "ControllerAPIProperty_Value_5"
+          }
+        ]
+      },
+      "handleResponse": {
+        "statusCode": 200,
+        "failLevel": "ERROR",
+        "failureMessage": "ERROR DURING PROPERTY SYSTEM CREATION ",
+        "responseChecks": [
+          {
+            "sourceType": "JSON",
+            "sourceKey": "$.success",
+            "compareMethod": "EQUAL",
+            "targetType": "PLAIN",
+            "targetKey": "true"
+          },
+          {
+            "sourceType": "JSON",
+            "sourceKey": "$.message",
+            "compareMethod": "EQUAL",
+            "targetType": "PLAIN"
+          },
+          {
+            "sourceType": "JSON",
+            "sourceKey": "$.records",
+            "compareMethod": "EQUAL",
+            "targetType": "PLAIN"
+          },
+          {
+            "sourceType": "JSON",
+            "sourceKey": "$.total",
+            "compareMethod": "EQUAL",
+            "targetType": "PLAIN",
+            "targetKey": "0"
+          }
+        ]
+      },
+      "testOps": [
+        {
+          "method": "ASSIGN",
+          "sourceType": "JSON",
+          "sourceKey": "$.data.sys_id",
+          "targetKey": "AjaxSystemProperty_SysId_5"
+        },
+        {
+          "method": "ASSIGN",
+          "sourceType": "JSON",
+          "sourceKey": "$.data.uname",
+          "targetKey": "AjaxSystemProperty_UName_5"
+        },
+        {
+          "method": "ASSIGN",
+          "sourceType": "JSON",
+          "sourceKey": "$.data.udescription",
+          "targetKey": "AjaxSystemProperty_UDescription_5"
+        },
+        {
+          "method": "ASSIGN",
+          "sourceType": "JSON",
+          "sourceKey": "$.data.uvalue",
+          "targetKey": "AjaxSystemProperty_UValue_5"
+        },
+        {
+          "method": "ADD",
+          "sourceType": "PLAIN",
+          "sourceKey": "1",
+          "targetKey": "ExpectedTotal"
+        },
+        {
+          "method": "ASSIGN",
+          "sourceType": "REFERENCE",
+          "sourceKey": "ExpectedTotal",
+          "targetKey": "TotalRecordsExpected"
+        }
+      ]
+    },
+    {
+      "name": "ListSystemProperties",
+      "description": "List system properties and validate number of records retrived based on START  0 parameter and filter criteria",
+      "path": "/resolve/service/sysproperties/getAllProperties",
+      "method": "GET",
+      "requestType": "URLENCODED_FORM_APPLICATION",
+      "responseType": "JSON_APPLICATION",
+      "queryParams": [
+        {
+          "key": "filter",
+          "type": "PLAIN",
+          "value": "[{\"field\":\"uname\",\"type\":\"auto\",\"condition\":\"startsWith\",\"value\":\"ControllerAPIProperty\"}]"
+        },
+        {
+          "key": "page",
+          "type": "PLAIN",
+          "value": "1"
+        },
+        {
+          "key": "start",
+          "type": "PLAIN",
+          "value": "0"
+        },
+        {
+          "key": "limit",
+          "type": "PLAIN",
+          "value": "5"
+        },
+        {
+          "key": "sort",
+          "type": "PLAIN",
+          "value": "[{\"property\":\"sysCreatedOn\",\"direction\":\"ASC\"}]"
+        }
+      ],
+      "handleResponse": {
+        "statusCode": 200,
+        "failLevel": "ERROR",
+        "failureMessage": "Error while listing properties",
+        "responseChecks": [
+          {
+            "sourceType": "JSON",
+            "sourceKey": "$.success",
+            "compareMethod": "EQUAL",
+            "targetType": "PLAIN",
+            "targetKey": "true"
+          },
+          {
+            "sourceType": "JSON",
+            "sourceKey": "$.message",
+            "compareMethod": "EQUAL",
+            "targetType": "PLAIN"
+          },
+          {
+            "sourceType": "JSON",
+            "sourceKey": "$.data",
+            "compareMethod": "EQUAL",
+            "targetType": "PLAIN"
+          },
+          {
+            "sourceType": "JSON",
+            "sourceKey": "$.total",
+            "compareMethod": "EQUAL",
+            "targetType": "REFERENCE",
+            "targetKey": "ExpectedTotal"
+          },
+          {
+            "sourceType": "JSON",
+            "sourceKey": "$.records",
+            "compareMethod": "SIZEEQUAL",
+            "targetType": "REFERENCE",
+            "targetKey": "TotalRecordsExpected"
+          }
+        ]
+      },
+      "testOps": [
+        {
+          "method": "ADD",
+          "sourceType": "PLAIN",
+          "sourceKey": "-1",
+          "targetKey": "TotalRecordsExpected"
+        }
+      ]
+    },
+    {
+      "name": "ListSystemProperties",
+      "description": "List system properties and validate number of records retrived based on START 1  parameter and filter criteria",
+      "path": "/resolve/service/sysproperties/getAllProperties",
+      "method": "GET",
+      "requestType": "URLENCODED_FORM_APPLICATION",
+      "responseType": "JSON_APPLICATION",
+      "queryParams": [
+        {
+          "key": "filter",
+          "type": "PLAIN",
+          "value": "[{\"field\":\"uname\",\"type\":\"auto\",\"condition\":\"startsWith\",\"value\":\"ControllerAPIProperty\"}]"
+        },
+        {
+          "key": "page",
+          "type": "PLAIN",
+          "value": "1"
+        },
+        {
+          "key": "start",
+          "type": "PLAIN",
+          "value": "1"
+        },
+        {
+          "key": "limit",
+          "type": "PLAIN",
+          "value": "5"
+        },
+        {
+          "key": "sort",
+          "type": "PLAIN",
+          "value": "[{\"property\":\"sysCreatedOn\",\"direction\":\"ASC\"}]"
+        }
+      ],
+      "handleResponse": {
+        "statusCode": 200,
+        "failLevel": "ERROR",
+        "failureMessage": "Error while listing properties",
+        "responseChecks": [
+          {
+            "sourceType": "JSON",
+            "sourceKey": "$.success",
+            "compareMethod": "EQUAL",
+            "targetType": "PLAIN",
+            "targetKey": "true"
+          },
+          {
+            "sourceType": "JSON",
+            "sourceKey": "$.message",
+            "compareMethod": "EQUAL",
+            "targetType": "PLAIN"
+          },
+          {
+            "sourceType": "JSON",
+            "sourceKey": "$.data",
+            "compareMethod": "EQUAL",
+            "targetType": "PLAIN"
+          },
+          {
+            "sourceType": "JSON",
+            "sourceKey": "$.total",
+            "compareMethod": "EQUAL",
+            "targetType": "REFERENCE",
+            "targetKey": "ExpectedTotal"
+          },
+          {
+            "sourceType": "JSON",
+            "sourceKey": "$.records",
+            "compareMethod": "SIZEEQUAL",
+            "targetType": "REFERENCE",
+            "targetKey": "TotalRecordsExpected"
+          }
+        ]
+      },
+      "testOps": [
+        {
+          "method": "ADD",
+          "sourceType": "PLAIN",
+          "sourceKey": "-1",
+          "targetKey": "TotalRecordsExpected"
+        }
+      ]
+    },
+    {
+      "name": "ListSystemProperties",
+      "description": "List system properties and validate number of records retrived based on START 2 parameter and filter criteria",
+      "path": "/resolve/service/sysproperties/getAllProperties",
+      "method": "GET",
+      "requestType": "URLENCODED_FORM_APPLICATION",
+      "responseType": "JSON_APPLICATION",
+      "queryParams": [
+        {
+          "key": "filter",
+          "type": "PLAIN",
+          "value": "[{\"field\":\"uname\",\"type\":\"auto\",\"condition\":\"startsWith\",\"value\":\"ControllerAPIProperty\"}]"
+        },
+        {
+          "key": "page",
+          "type": "PLAIN",
+          "value": "1"
+        },
+        {
+          "key": "start",
+          "type": "PLAIN",
+          "value": "2"
+        },
+        {
+          "key": "limit",
+          "type": "PLAIN",
+          "value": "5"
+        },
+        {
+          "key": "sort",
+          "type": "PLAIN",
+          "value": "[{\"property\":\"sysCreatedOn\",\"direction\":\"ASC\"}]"
+        }
+      ],
+      "handleResponse": {
+        "statusCode": 200,
+        "failLevel": "ERROR",
+        "failureMessage": "Error while listing properties",
+        "responseChecks": [
+          {
+            "sourceType": "JSON",
+            "sourceKey": "$.success",
+            "compareMethod": "EQUAL",
+            "targetType": "PLAIN",
+            "targetKey": "true"
+          },
+          {
+            "sourceType": "JSON",
+            "sourceKey": "$.message",
+            "compareMethod": "EQUAL",
+            "targetType": "PLAIN"
+          },
+          {
+            "sourceType": "JSON",
+            "sourceKey": "$.data",
+            "compareMethod": "EQUAL",
+            "targetType": "PLAIN"
+          },
+          {
+            "sourceType": "JSON",
+            "sourceKey": "$total",
+            "compareMethod": "EQUAL",
+            "targetType": "REFERENCE",
+            "targetKey": "ExpectedTotal"
+          },
+          {
+            "sourceType": "JSON",
+            "sourceKey": "$records",
+            "compareMethod": "SIZEEQUAL",
+            "targetType": "REFERENCE",
+            "targetKey": "TotalRecordsExpected"
+          }
+        ]
+      },
+      "testOps": [
+        {
+          "method": "ADD",
+          "sourceType": "PLAIN",
+          "sourceKey": "-1",
+          "targetKey": "TotalRecordsExpected"
+        }
+      ]
+    },
+    {
+      "name": "ListSystemProperties",
+      "description": "List system properties and validate number of records retrived based on START 3 parameter and filter criteria",
+      "path": "/resolve/service/sysproperties/getAllProperties",
+      "method": "GET",
+      "requestType": "URLENCODED_FORM_APPLICATION",
+      "responseType": "JSON_APPLICATION",
+      "queryParams": [
+        {
+          "key": "filter",
+          "type": "PLAIN",
+          "value": "[{\"field\":\"uname\",\"type\":\"auto\",\"condition\":\"startsWith\",\"value\":\"ControllerAPIProperty\"}]"
+        },
+        {
+          "key": "page",
+          "type": "PLAIN",
+          "value": "1"
+        },
+        {
+          "key": "start",
+          "type": "PLAIN",
+          "value": "3"
+        },
+        {
+          "key": "limit",
+          "type": "PLAIN",
+          "value": "5"
+        },
+        {
+          "key": "sort",
+          "type": "PLAIN",
+          "value": "[{\"property\":\"sysCreatedOn\",\"direction\":\"ASC\"}]"
+        }
+      ],
+      "handleResponse": {
+        "statusCode": 200,
+        "failLevel": "ERROR",
+        "failureMessage": "Error while listing properties",
+        "responseChecks": [
+          {
+            "sourceType": "JSON",
+            "sourceKey": "$.success",
+            "compareMethod": "EQUAL",
+            "targetType": "PLAIN",
+            "targetKey": "true"
+          },
+          {
+            "sourceType": "JSON",
+            "sourceKey": "$.message",
+            "compareMethod": "EQUAL",
+            "targetType": "PLAIN"
+          },
+          {
+            "sourceType": "JSON",
+            "sourceKey": "$.data",
+            "compareMethod": "EQUAL",
+            "targetType": "PLAIN"
+          },
+          {
+            "sourceType": "JSON",
+            "sourceKey": "$total",
+            "compareMethod": "EQUAL",
+            "targetType": "REFERENCE",
+            "targetKey": "ExpectedTotal"
+          },
+          {
+            "sourceType": "JSON",
+            "sourceKey": "$records",
+            "compareMethod": "SIZEEQUAL",
+            "targetType": "REFERENCE",
+            "targetKey": "TotalRecordsExpected"
+          }
+        ]
+      },
+      "testOps": [
+        {
+          "method": "ADD",
+          "sourceType": "PLAIN",
+          "sourceKey": "-1",
+          "targetKey": "TotalRecordsExpected"
+        }
+      ]
+    },
+    {
+      "name": "ListSystemProperties",
+      "description": "List system properties and validate number of records retrived based on START 4 parameter and filter criteria",
+      "path": "/resolve/service/sysproperties/getAllProperties",
+      "method": "GET",
+      "requestType": "URLENCODED_FORM_APPLICATION",
+      "responseType": "JSON_APPLICATION",
+      "queryParams": [
+        {
+          "key": "filter",
+          "type": "PLAIN",
+          "value": "[{\"field\":\"uname\",\"type\":\"auto\",\"condition\":\"startsWith\",\"value\":\"ControllerAPIProperty\"}]"
+        },
+        {
+          "key": "page",
+          "type": "PLAIN",
+          "value": "1"
+        },
+        {
+          "key": "start",
+          "type": "PLAIN",
+          "value": "4"
+        },
+        {
+          "key": "limit",
+          "type": "PLAIN",
+          "value": "5"
+        },
+        {
+          "key": "sort",
+          "type": "PLAIN",
+          "value": "[{\"property\":\"sysCreatedOn\",\"direction\":\"ASC\"}]"
+        }
+      ],
+      "handleResponse": {
+        "statusCode": 200,
+        "failLevel": "ERROR",
+        "failureMessage": "Error while listing properties",
+        "responseChecks": [
+          {
+            "sourceType": "JSON",
+            "sourceKey": "$.success",
+            "compareMethod": "EQUAL",
+            "targetType": "PLAIN",
+            "targetKey": "true"
+          },
+          {
+            "sourceType": "JSON",
+            "sourceKey": "$.message",
+            "compareMethod": "EQUAL",
+            "targetType": "PLAIN"
+          },
+          {
+            "sourceType": "JSON",
+            "sourceKey": "$.data",
+            "compareMethod": "EQUAL",
+            "targetType": "PLAIN"
+          },
+          {
+            "sourceType": "JSON",
+            "sourceKey": "$.total",
+            "compareMethod": "EQUAL",
+            "targetType": "REFERENCE",
+            "targetKey": "ExpectedTotal"
+          },
+          {
+            "sourceType": "JSON",
+            "sourceKey": "$.records",
+            "compareMethod": "SIZEEQUAL",
+            "targetType": "REFERENCE",
+            "targetKey": "TotalRecordsExpected"
+          }
+        ]
+      }
+    },
+    {
+      "name": "ListSystemProperties",
+      "description": "List system properties and validate number of records retrived based on START 5 parameter and filter criteria",
+      "path": "/resolve/service/sysproperties/getAllProperties",
+      "method": "GET",
+      "requestType": "URLENCODED_FORM_APPLICATION",
+      "responseType": "JSON_APPLICATION",
+      "queryParams": [
+        {
+          "key": "filter",
+          "type": "PLAIN",
+          "value": "[{\"field\":\"uname\",\"type\":\"auto\",\"condition\":\"startsWith\",\"value\":\"ControllerAPIProperty\"}]"
+        },
+        {
+          "key": "page",
+          "type": "PLAIN",
+          "value": "1"
+        },
+        {
+          "key": "start",
+          "type": "PLAIN",
+          "value": "5"
+        },
+        {
+          "key": "limit",
+          "type": "PLAIN",
+          "value": "5"
+        },
+        {
+          "key": "sort",
+          "type": "PLAIN",
+          "value": "[{\"property\":\"sysCreatedOn\",\"direction\":\"ASC\"}]"
+        }
+      ],
+      "handleResponse": {
+        "statusCode": 200,
+        "failLevel": "ERROR",
+        "failureMessage": "Error while listing properties",
+        "responseChecks": [
+          {
+            "sourceType": "JSON",
+            "sourceKey": "$.success",
+            "compareMethod": "EQUAL",
+            "targetType": "PLAIN",
+            "targetKey": "true"
+          },
+          {
+            "sourceType": "JSON",
+            "sourceKey": "$.message",
+            "compareMethod": "EQUAL",
+            "targetType": "PLAIN"
+          },
+          {
+            "sourceType": "JSON",
+            "sourceKey": "$.data",
+            "compareMethod": "EQUAL",
+            "targetType": "PLAIN"
+          },
+          {
+            "sourceType": "JSON",
+            "sourceKey": "$.total",
+            "compareMethod": "EQUAL",
+            "targetType": "REFERENCE",
+            "targetKey": "ExpectedTotal"
+          },
+          {
+            "sourceType": "JSON",
+            "sourceKey": "$.records",
+            "compareMethod": "EQUAL",
+            "targetType": "PLAIN",
+            "targetKey": "[]"
+          }
+        ]
+      }
+    },
+    {
+      "name": "ListSystemProperties",
+      "description": "List system properties, use Start greater than number of records to receive. Records retrieved 0",
+      "path": "/resolve/service/sysproperties/getAllProperties",
+      "method": "GET",
+      "requestType": "URLENCODED_FORM_APPLICATION",
+      "responseType": "JSON_APPLICATION",
+      "queryParams": [
+        {
+          "key": "filter",
+          "type": "PLAIN",
+          "value": "[{\"field\":\"uname\",\"type\":\"auto\",\"condition\":\"startsWith\",\"value\":\"ControllerAPIProperty\"}]"
+        },
+        {
+          "key": "page",
+          "type": "PLAIN",
+          "value": "1"
+        },
+        {
+          "key": "start",
+          "type": "PLAIN",
+          "value": "6"
+        },
+        {
+          "key": "limit",
+          "type": "PLAIN",
+          "value": "0"
+        },
+        {
+          "key": "sort",
+          "type": "PLAIN",
+          "value": "[{\"property\":\"uname\",\"direction\":\"DESC\"}]"
+        }
+      ],
+      "handleResponse": {
+        "statusCode": 200,
+        "failLevel": "ERROR",
+        "failureMessage": "Error while listing properties",
+        "responseChecks": [
+          {
+            "sourceType": "JSON",
+            "sourceKey": "$.success",
+            "compareMethod": "EQUAL",
+            "targetType": "PLAIN",
+            "targetKey": "true"
+          },
+          {
+            "sourceType": "JSON",
+            "sourceKey": "$.message",
+            "compareMethod": "EQUAL",
+            "targetType": "PLAIN"
+          },
+          {
+            "sourceType": "JSON",
+            "sourceKey": "$.data",
+            "compareMethod": "EQUAL",
+            "targetType": "PLAIN"
+          },
+          {
+            "sourceType": "JSON",
+            "sourceKey": "$.records",
+            "compareMethod": "SIZEEQUAL",
+            "targetType": "PLAIN",
+            "targetKey": "0"
+          }
+        ]
+      }
+    },
+    {
+      "name": "ListSystemProperties",
+      "description": "List system properties, use Negative Start value, No records should be retrieved",
+      "path": "/resolve/service/sysproperties/getAllProperties",
+      "method": "GET",
+      "requestType": "URLENCODED_FORM_APPLICATION",
+      "responseType": "JSON_APPLICATION",
+      "queryParams": [
+        {
+          "key": "filter",
+          "type": "PLAIN",
+          "value": "[{\"field\":\"uname\",\"type\":\"auto\",\"condition\":\"startsWith\",\"value\":\"ControllerAPIProperty\"}]"
+        },
+        {
+          "key": "page",
+          "type": "PLAIN",
+          "value": "1"
+        },
+        {
+          "key": "start",
+          "type": "PLAIN",
+          "value": "-1"
+        },
+        {
+          "key": "limit",
+          "type": "PLAIN",
+          "value": "0"
+        },
+        {
+          "key": "sort",
+          "type": "PLAIN",
+          "value": "[{\"property\":\"uname\",\"direction\":\"DESC\"}]"
+        }
+      ],
+      "handleResponse": {
+        "statusCode": 200,
+        "failLevel": "ERROR",
+        "failureMessage": "Error while listing properties",
+        "responseChecks": [
+          {
+            "sourceType": "JSON",
+            "sourceKey": "$.success",
+            "compareMethod": "EQUAL",
+            "targetType": "PLAIN",
+            "targetKey": "true"
+          },
+          {
+            "sourceType": "JSON",
+            "sourceKey": "$.message",
+            "compareMethod": "EQUAL",
+            "targetType": "PLAIN"
+          },
+          {
+            "sourceType": "JSON",
+            "sourceKey": "$.data",
+            "compareMethod": "EQUAL",
+            "targetType": "PLAIN"
+          },
+          {
+            "sourceType": "JSON",
+            "sourceKey": "$.records",
+            "compareMethod": "EQUAL",
+            "targetType": "PLAIN",
+            "targetKey": "[]"
+          }
+        ]
+      }
+    },
+    {
+      "name": "ListSystemProperties",
+      "description": "List system properties, Sort DESC by Created On and validate records were sorted propertly",
+      "path": "/resolve/service/sysproperties/getAllProperties",
+      "method": "GET",
+      "requestType": "URLENCODED_FORM_APPLICATION",
+      "responseType": "JSON_APPLICATION",
+      "queryParams": [
+        {
+          "key": "filter",
+          "type": "PLAIN",
+          "value": "[{\"field\":\"uname\",\"type\":\"auto\",\"condition\":\"startsWith\",\"value\":\"ControllerAPIProperty\"}]"
+        },
+        {
+          "key": "page",
+          "type": "PLAIN",
+          "value": "1"
+        },
+        {
+          "key": "start",
+          "type": "PLAIN",
+          "value": "0"
+        },
+        {
+          "key": "limit",
+          "type": "PLAIN",
+          "value": "-1"
+        },
+        {
+          "key": "sort",
+          "type": "PLAIN",
+          "value": "[{\"property\":\"sysCreatedOn\",\"direction\":\"DESC\"}]"
+        }
+      ],
+      "handleResponse": {
+        "statusCode": 200,
+        "failLevel": "WARNING",
+        "failureMessage": "WARNING - Records sorted by Created On were not sorted propertly",
+        "responseChecks": [
+          {
+            "sourceType": "JSON",
+            "sourceKey": "$.success",
+            "compareMethod": "EQUAL",
+            "targetType": "PLAIN",
+            "targetKey": "true"
+          },
+          {
+            "sourceType": "JSON",
+            "sourceKey": "$.message",
+            "compareMethod": "EQUAL",
+            "targetType": "PLAIN"
+          },
+          {
+            "sourceType": "JSON",
+            "sourceKey": "$.data",
+            "compareMethod": "EQUAL",
+            "targetType": "PLAIN"
+          },
+          {
+            "sourceType": "JSON",
+            "sourceKey": "$.records[0].sys_id",
+            "compareMethod": "EQUAL",
+            "targetType": "REFERENCE",
+            "targetKey": "AjaxSystemProperty_SysId_5"
+          },
+          {
+            "sourceType": "JSON",
+            "sourceKey": "$.records[1].sys_id",
+            "compareMethod": "EQUAL",
+            "targetType": "REFERENCE",
+            "targetKey": "AjaxSystemProperty_SysId_4"
+          },
+          {
+            "sourceType": "PLAIN",
+            "sourceKey": "$.records[2].sys_id",
+            "compareMethod": "EQUAL",
+            "targetType": "REFERENCE",
+            "targetKey": "AjaxSystemProperty_SysId_3"
+          }
+        ]
+      }
+    },
+    {
+      "name": "ListSystemProperties",
+      "description": "List system properties and validate records were sorted by Name DESC ",
+      "path": "/resolve/service/sysproperties/getAllProperties",
+      "method": "GET",
+      "requestType": "URLENCODED_FORM_APPLICATION",
+      "responseType": "JSON_APPLICATION",
+      "queryParams": [
+        {
+          "key": "filter",
+          "type": "PLAIN",
+          "value": "[{\"field\":\"uname\",\"type\":\"auto\",\"condition\":\"startsWith\",\"value\":\"ControllerAPIProperty\"}]"
+        },
+        {
+          "key": "page",
+          "type": "PLAIN",
+          "value": "1"
+        },
+        {
+          "key": "start",
+          "type": "PLAIN",
+          "value": "0"
+        },
+        {
+          "key": "limit",
+          "type": "PLAIN",
+          "value": "-1"
+        },
+        {
+          "key": "sort",
+          "type": "PLAIN",
+          "value": "[{\"property\":\"uname\",\"direction\":\"DESC\"}]"
+        }
+      ],
+      "handleResponse": {
+        "statusCode": 200,
+        "failLevel": "ERROR",
+        "failureMessage": "Error while listing properties",
+        "responseChecks": [
+          {
+            "sourceType": "JSON",
+            "sourceKey": "$.success",
+            "compareMethod": "EQUAL",
+            "targetType": "PLAIN",
+            "targetKey": "true"
+          },
+          {
+            "sourceType": "JSON",
+            "sourceKey": "$.message",
+            "compareMethod": "EQUAL",
+            "targetType": "PLAIN"
+          },
+          {
+            "sourceType": "JSON",
+            "sourceKey": "$.data",
+            "compareMethod": "EQUAL",
+            "targetType": "PLAIN"
+          },
+          {
+            "sourceType": "JSON",
+            "sourceKey": "$.records[0].sys_id",
+            "compareMethod": "EQUAL",
+            "targetType": "REFERENCE",
+            "targetKey": "AjaxSystemProperty_SysId_5"
+          },
+          {
+            "sourceType": "JSON",
+            "sourceKey": "$.records[1].sys_id",
+            "compareMethod": "EQUAL",
+            "targetType": "REFERENCE",
+            "targetKey": "AjaxSystemProperty_SysId_4"
+          },
+          {
+            "sourceType": "JSON",
+            "sourceKey": "$.records[2].sys_id",
+            "compareMethod": "EQUAL",
+            "targetType": "REFERENCE",
+            "targetKey": "AjaxSystemProperty_SysId_3"
+          }
+        ]
+      }
+    },
+    {
+      "name": "ListSystemProperties",
+      "description": "List system properties and validate records were sorted by Name ASC ",
+      "path": "/resolve/service/sysproperties/getAllProperties",
+      "method": "GET",
+      "requestType": "URLENCODED_FORM_APPLICATION",
+      "responseType": "JSON_APPLICATION",
+      "queryParams": [
+        {
+          "key": "filter",
+          "type": "PLAIN",
+          "value": "[{\"field\":\"uname\",\"type\":\"auto\",\"condition\":\"startsWith\",\"value\":\"ControllerAPIProperty\"}]"
+        },
+        {
+          "key": "page",
+          "type": "PLAIN",
+          "value": "1"
+        },
+        {
+          "key": "start",
+          "type": "PLAIN",
+          "value": "0"
+        },
+        {
+          "key": "limit",
+          "type": "PLAIN",
+          "value": "-1"
+        },
+        {
+          "key": "sort",
+          "type": "PLAIN",
+          "value": "[{\"property\":\"uname\",\"direction\":\"ASC\"}]"
+        }
+      ],
+      "handleResponse": {
+        "statusCode": 200,
+        "failLevel": "ERROR",
+        "failureMessage": "Error while listing properties",
+        "responseChecks": [
+          {
+            "sourceType": "JSON",
+            "sourceKey": "$.success",
+            "compareMethod": "EQUAL",
+            "targetType": "PLAIN",
+            "targetKey": "true"
+          },
+          {
+            "sourceType": "JSON",
+            "sourceKey": "$.message",
+            "compareMethod": "EQUAL",
+            "targetType": "PLAIN"
+          },
+          {
+            "sourceType": "JSON",
+            "sourceKey": "$.data",
+            "compareMethod": "EQUAL",
+            "targetType": "PLAIN"
+          },
+          {
+            "sourceType": "JSON",
+            "sourceKey": "$.records[0].sys_id",
+            "compareMethod": "EQUAL",
+            "targetType": "REFERENCE",
+            "targetKey": "AjaxSystemProperty_SysId_1"
+          },
+          {
+            "sourceType": "JSON",
+            "sourceKey": "$.records[1].sys_id",
+            "compareMethod": "EQUAL",
+            "targetType": "REFERENCE",
+            "targetKey": "AjaxSystemProperty_SysId_2"
+          },
+          {
+            "sourceType": "JSON",
+            "sourceKey": "$.records[2].sys_id",
+            "compareMethod": "EQUAL",
+            "targetType": "REFERENCE",
+            "targetKey": "AjaxSystemProperty_SysId_3"
+          }
+        ]
+      }
+    },
+    {
+      "name": "ListSystemProperties",
+      "description": "List system properties and validate records were sorted by Value DESC ",
+      "path": "/resolve/service/sysproperties/getAllProperties",
+      "method": "GET",
+      "requestType": "URLENCODED_FORM_APPLICATION",
+      "responseType": "JSON_APPLICATION",
+      "queryParams": [
+        {
+          "key": "filter",
+          "type": "PLAIN",
+          "value": "[{\"field\":\"uvalue\",\"type\":\"auto\",\"condition\":\"startsWith\",\"value\":\"ControllerAPIProperty\"}]"
+        },
+        {
+          "key": "page",
+          "type": "PLAIN",
+          "value": "1"
+        },
+        {
+          "key": "start",
+          "type": "PLAIN",
+          "value": "0"
+        },
+        {
+          "key": "limit",
+          "type": "PLAIN",
+          "value": "-1"
+        },
+        {
+          "key": "sort",
+          "type": "PLAIN",
+          "value": "[{\"property\":\"uvalue\",\"direction\":\"DESC\"}]"
+        }
+      ],
+      "handleResponse": {
+        "statusCode": 200,
+        "failLevel": "ERROR",
+        "failureMessage": "Error while listing properties",
+        "responseChecks": [
+          {
+            "sourceType": "JSON",
+            "sourceKey": "$.success",
+            "compareMethod": "EQUAL",
+            "targetType": "PLAIN",
+            "targetKey": "true"
+          },
+          {
+            "sourceType": "JSON",
+            "sourceKey": "$.message",
+            "compareMethod": "EQUAL",
+            "targetType": "PLAIN"
+          },
+          {
+            "sourceType": "JSON",
+            "sourceKey": "$.data",
+            "compareMethod": "EQUAL",
+            "targetType": "PLAIN"
+          },
+          {
+            "sourceType": "JSON",
+            "sourceKey": "$.records[0].sys_id",
+            "compareMethod": "EQUAL",
+            "targetType": "REFERENCE",
+            "targetKey": "AjaxSystemProperty_SysId_5"
+          },
+          {
+            "sourceType": "JSON",
+            "sourceKey": "$.records[1].sys_id",
+            "compareMethod": "EQUAL",
+            "targetType": "REFERENCE",
+            "targetKey": "AjaxSystemProperty_SysId_4"
+          },
+          {
+            "sourceType": "JSON",
+            "sourceKey": "$.records[2].sys_id",
+            "compareMethod": "EQUAL",
+            "targetType": "REFERENCE",
+            "targetKey": "AjaxSystemProperty_SysId_3"
+          }
+        ]
+      }
+    },
+    {
+      "name": "ListSystemProperties",
+      "description": "List system properties and validate records were sorted by Value ASC ",
+      "path": "/resolve/service/sysproperties/getAllProperties",
+      "method": "GET",
+      "requestType": "URLENCODED_FORM_APPLICATION",
+      "responseType": "JSON_APPLICATION",
+      "queryParams": [
+        {
+          "key": "filter",
+          "type": "PLAIN",
+          "value": "[{\"field\":\"uvalue\",\"type\":\"auto\",\"condition\":\"startsWith\",\"value\":\"ControllerAPIProperty\"}]"
+        },
+        {
+          "key": "page",
+          "type": "PLAIN",
+          "value": "1"
+        },
+        {
+          "key": "start",
+          "type": "PLAIN",
+          "value": "0"
+        },
+        {
+          "key": "limit",
+          "type": "PLAIN",
+          "value": "-1"
+        },
+        {
+          "key": "sort",
+          "type": "PLAIN",
+          "value": "[{\"property\":\"uvalue\",\"direction\":\"ASC\"}]"
+        }
+      ],
+      "handleResponse": {
+        "statusCode": 200,
+        "failLevel": "ERROR",
+        "failureMessage": "Error while listing properties",
+        "responseChecks": [
+          {
+            "sourceType": "JSON",
+            "sourceKey": "$.success",
+            "compareMethod": "EQUAL",
+            "targetType": "PLAIN",
+            "targetKey": "true"
+          },
+          {
+            "sourceType": "JSON",
+            "sourceKey": "$.message",
+            "compareMethod": "EQUAL",
+            "targetType": "PLAIN"
+          },
+          {
+            "sourceType": "JSON",
+            "sourceKey": "$.data",
+            "compareMethod": "EQUAL",
+            "targetType": "PLAIN"
+          },
+          {
+            "sourceType": "JSON",
+            "sourceKey": "$.records[0].sys_id",
+            "compareMethod": "EQUAL",
+            "targetType": "REFERENCE",
+            "targetKey": "AjaxSystemProperty_SysId_1"
+          },
+          {
+            "sourceType": "JSON",
+            "sourceKey": "$.records[1].sys_id",
+            "compareMethod": "EQUAL",
+            "targetType": "REFERENCE",
+            "targetKey": "AjaxSystemProperty_SysId_2"
+          },
+          {
+            "sourceType": "JSON",
+            "sourceKey": "$.records[2].sys_id",
+            "compareMethod": "EQUAL",
+            "targetType": "REFERENCE",
+            "targetKey": "AjaxSystemProperty_SysId_3"
+          }
+        ]
+      }
+    },
+    {
+      "name": "ListSystemProperties",
+      "description": "List system properties and validate records were sorted by Description DESC ",
+      "path": "/resolve/service/sysproperties/getAllProperties",
+      "method": "GET",
+      "requestType": "URLENCODED_FORM_APPLICATION",
+      "responseType": "JSON_APPLICATION",
+      "queryParams": [
+        {
+          "key": "filter",
+          "type": "PLAIN",
+          "value": "[{\"field\":\"udescription\",\"type\":\"auto\",\"condition\":\"startsWith\",\"value\":\"ControllerAPIProperty\"}]"
+        },
+        {
+          "key": "page",
+          "type": "PLAIN",
+          "value": "1"
+        },
+        {
+          "key": "start",
+          "type": "PLAIN",
+          "value": "0"
+        },
+        {
+          "key": "limit",
+          "type": "PLAIN",
+          "value": "-1"
+        },
+        {
+          "key": "sort",
+          "type": "PLAIN",
+          "value": "[{\"property\":\"udescription\",\"direction\":\"DESC\"}]"
+        }
+      ],
+      "handleResponse": {
+        "statusCode": 200,
+        "failLevel": "ERROR",
+        "failureMessage": "Error while listing properties",
+        "responseChecks": [
+          {
+            "sourceType": "JSON",
+            "sourceKey": "$.success",
+            "compareMethod": "EQUAL",
+            "targetType": "PLAIN",
+            "targetKey": "true"
+          },
+          {
+            "sourceType": "JSON",
+            "sourceKey": "$.message",
+            "compareMethod": "EQUAL",
+            "targetType": "PLAIN"
+          },
+          {
+            "sourceType": "JSON",
+            "sourceKey": "$.data",
+            "compareMethod": "EQUAL",
+            "targetType": "PLAIN"
+          },
+          {
+            "sourceType": "JSON",
+            "sourceKey": "$.records[0].sys_id",
+            "compareMethod": "EQUAL",
+            "targetType": "REFERENCE",
+            "targetKey": "AjaxSystemProperty_SysId_5"
+          },
+          {
+            "sourceType": "JSON",
+            "sourceKey": "$.records[1].sys_id",
+            "compareMethod": "EQUAL",
+            "targetType": "REFERENCE",
+            "targetKey": "AjaxSystemProperty_SysId_4"
+          },
+          {
+            "sourceType": "JSON",
+            "sourceKey": "$.records[2].sys_id",
+            "compareMethod": "EQUAL",
+            "targetType": "REFERENCE",
+            "targetKey": "AjaxSystemProperty_SysId_3"
+          }
+        ]
+      }
+    },
+    {
+      "name": "ListSystemProperties",
+      "description": "List system properties and validate records were sorted by Description ASC ",
+      "path": "/resolve/service/sysproperties/getAllProperties",
+      "method": "GET",
+      "requestType": "URLENCODED_FORM_APPLICATION",
+      "responseType": "JSON_APPLICATION",
+      "queryParams": [
+        {
+          "key": "filter",
+          "type": "PLAIN",
+          "value": "[{\"field\":\"udescription\",\"type\":\"auto\",\"condition\":\"startsWith\",\"value\":\"ControllerAPIProperty\"}]"
+        },
+        {
+          "key": "page",
+          "type": "PLAIN",
+          "value": "1"
+        },
+        {
+          "key": "start",
+          "type": "PLAIN",
+          "value": "0"
+        },
+        {
+          "key": "limit",
+          "type": "PLAIN",
+          "value": "-1"
+        },
+        {
+          "key": "sort",
+          "type": "PLAIN",
+          "value": "[{\"property\":\"udescription\",\"direction\":\"ASC\"}]"
+        }
+      ],
+      "handleResponse": {
+        "statusCode": 200,
+        "failLevel": "ERROR",
+        "failureMessage": "Error while listing properties",
+        "responseChecks": [
+          {
+            "sourceType": "JSON",
+            "sourceKey": "$.success",
+            "compareMethod": "EQUAL",
+            "targetType": "PLAIN",
+            "targetKey": "true"
+          },
+          {
+            "sourceType": "JSON",
+            "sourceKey": "$.message",
+            "compareMethod": "EQUAL",
+            "targetType": "PLAIN"
+          },
+          {
+            "sourceType": "JSON",
+            "sourceKey": "$.data",
+            "compareMethod": "EQUAL",
+            "targetType": "PLAIN"
+          },
+          {
+            "sourceType": "JSON",
+            "sourceKey": "$.records[0].sys_id",
+            "compareMethod": "EQUAL",
+            "targetType": "REFERENCE",
+            "targetKey": "AjaxSystemProperty_SysId_1"
+          },
+          {
+            "sourceType": "JSON",
+            "sourceKey": "$.records[1].sys_id",
+            "compareMethod": "EQUAL",
+            "targetType": "REFERENCE",
+            "targetKey": "AjaxSystemProperty_SysId_2"
+          },
+          {
+            "sourceType": "JSON",
+            "sourceKey": "$.records[2].sys_id",
+            "compareMethod": "EQUAL",
+            "targetType": "REFERENCE",
+            "targetKey": "AjaxSystemProperty_SysId_3"
+          }
+        ]
+      }
+    },
+    {
+      "name": "ListSystemProperties",
+      "description": "List system properties and use an Invalid Field on sorting option ",
+      "path": "/resolve/service/sysproperties/getAllProperties",
+      "method": "GET",
+      "requestType": "URLENCODED_FORM_APPLICATION",
+      "responseType": "JSON_APPLICATION",
+      "queryParams": [
+        {
+          "key": "filter",
+          "type": "PLAIN",
+          "value": "[{\"field\":\"uname\",\"type\":\"auto\",\"condition\":\"startsWith\",\"value\":\"ControllerAPIProperty\"}]"
+        },
+        {
+          "key": "page",
+          "type": "PLAIN",
+          "value": "1"
+        },
+        {
+          "key": "start",
+          "type": "PLAIN",
+          "value": "0"
+        },
+        {
+          "key": "limit",
+          "type": "PLAIN",
+          "value": "-1"
+        },
+        {
+          "key": "sort",
+          "type": "PLAIN",
+          "value": "[{\"property\":\"InvalidField\",\"direction\":\"ASC\"}]"
+        }
+      ],
+      "handleResponse": {
+        "statusCode": 200,
+        "failLevel": "ERROR",
+        "failureMessage": "Error while listing properties",
+        "responseChecks": [
+          {
+            "sourceType": "JSON",
+            "sourceKey": "$.success",
+            "compareMethod": "EQUAL",
+            "targetType": "PLAIN",
+            "targetKey": "false"
+          },
+          {
+            "sourceType": "JSON",
+            "sourceKey": "$.message",
+            "compareMethod": "CONTAIN",
+            "targetType": "PLAIN",
+            "targetKey": "Error"
+          },
+          {
+            "sourceType": "JSON",
+            "sourceKey": "$.data",
+            "compareMethod": "EQUAL",
+            "targetType": "PLAIN"
+          },
+          {
+            "sourceType": "JSON",
+            "sourceKey": "$.records",
+            "compareMethod": "EQUAL",
+            "targetType": "PLAIN"
+          }
+        ]
+      }
+    },
+    {
+      "name": "DeleteAjaxSystemProperty",
+      "description": "Clean up the property that was created on previous step A",
+      "path": "/resolve/service/sysproperties/deleteProperties",
+      "method": "POST",
+      "requestType": "JSON_APPLICATION",
+      "responseType": "JSON_APPLICATION",
+      "jsonPayload": {
+        "baseNode": "[\"\"]",
+        "replaceJsonField": [
+          {
+            "key": "$.[0]",
+            "type": "REFERENCE",
+            "value": "AjaxSystemProperty_SysId_1"
+          }
+        ]
+      },
+      "handleResponse": {
+        "statusCode": 200,
+        "failLevel": "ERROR",
+        "failureMessage": "ERROR WHILE DELETING SYSTEM PROPERTY CREATED FOR TEST CASE",
+        "responseChecks": [
+          {
+            "sourceType": "JSON",
+            "sourceKey": "$.success",
+            "compareMethod": "EQUAL",
+            "targetType": "PLAIN",
+            "targetKey": "true"
+          },
+          {
+            "sourceType": "JSON",
+            "sourceKey": "$.data",
+            "compareMethod": "EQUAL",
+            "targetType": "PLAIN"
+          },
+          {
+            "sourceType": "JSON",
+            "sourceKey": "$.records",
+            "compareMethod": "EQUAL",
+            "targetType": "PLAIN"
+          },
+          {
+            "sourceType": "JSON",
+            "sourceKey": "$.total",
+            "compareMethod": "EQUAL",
+            "targetType": "PLAIN",
+            "targetKey": "0"
+          }
+        ]
+      }
+    },
+    {
+      "name": "DeleteAjaxSystemProperty",
+      "description": "Clean up the property that was created on previous step B",
+      "path": "/resolve/service/sysproperties/deleteProperties",
+      "method": "POST",
+      "requestType": "JSON_APPLICATION",
+      "responseType": "JSON_APPLICATION",
+      "jsonPayload": {
+        "baseNode": "[\"\"]",
+        "replaceJsonField": [
+          {
+            "key": "$.[0]",
+            "type": "REFERENCE",
+            "value": "AjaxSystemProperty_SysId_2"
+          }
+        ]
+      },
+      "handleResponse": {
+        "statusCode": 200,
+        "failLevel": "ERROR",
+        "failureMessage": "ERROR WHILE DELETING SYSTEM PROPERTY CREATED FOR TEST CASE",
+        "responseChecks": [
+          {
+            "sourceType": "JSON",
+            "sourceKey": "$.success",
+            "compareMethod": "EQUAL",
+            "targetType": "PLAIN",
+            "targetKey": "true"
+          },
+          {
+            "sourceType": "JSON",
+            "sourceKey": "$.data",
+            "compareMethod": "EQUAL",
+            "targetType": "PLAIN"
+          },
+          {
+            "sourceType": "JSON",
+            "sourceKey": "$.records",
+            "compareMethod": "EQUAL",
+            "targetType": "PLAIN"
+          },
+          {
+            "sourceType": "JSON",
+            "sourceKey": "$.total",
+            "compareMethod": "EQUAL",
+            "targetType": "PLAIN",
+            "targetKey": "0"
+          }
+        ]
+      }
+    },
+    {
+      "name": "DeleteAjaxSystemProperty",
+      "description": "Clean up the property that was created on previous step C",
+      "path": "/resolve/service/sysproperties/deleteProperties",
+      "method": "POST",
+      "requestType": "JSON_APPLICATION",
+      "responseType": "JSON_APPLICATION",
+      "jsonPayload": {
+        "baseNode": "[\"\"]",
+        "replaceJsonField": [
+          {
+            "key": "$.[0]",
+            "type": "REFERENCE",
+            "value": "AjaxSystemProperty_SysId_3"
+          }
+        ]
+      },
+      "handleResponse": {
+        "statusCode": 200,
+        "failLevel": "ERROR",
+        "failureMessage": "ERROR WHILE DELETING SYSTEM PROPERTY CREATED FOR TEST CASE",
+        "responseChecks": [
+          {
+            "sourceType": "JSON",
+            "sourceKey": "$.success",
+            "compareMethod": "EQUAL",
+            "targetType": "PLAIN",
+            "targetKey": "true"
+          },
+          {
+            "sourceType": "JSON",
+            "sourceKey": "$.data",
+            "compareMethod": "EQUAL",
+            "targetType": "PLAIN"
+          },
+          {
+            "sourceType": "JSON",
+            "sourceKey": "$.records",
+            "compareMethod": "EQUAL",
+            "targetType": "PLAIN"
+          },
+          {
+            "sourceType": "JSON",
+            "sourceKey": "$.total",
+            "compareMethod": "EQUAL",
+            "targetType": "PLAIN",
+            "targetKey": "0"
+          }
+        ]
+      }
+    },
+    {
+      "name": "DeleteAjaxSystemProperty",
+      "description": "Clean up the property that was created on previous step D",
+      "path": "/resolve/service/sysproperties/deleteProperties",
+      "method": "POST",
+      "requestType": "JSON_APPLICATION",
+      "responseType": "JSON_APPLICATION",
+      "jsonPayload": {
+        "baseNode": "[\"\"]",
+        "replaceJsonField": [
+          {
+            "key": "$.[0]",
+            "type": "REFERENCE",
+            "value": "AjaxSystemProperty_SysId_4"
+          }
+        ]
+      },
+      "handleResponse": {
+        "statusCode": 200,
+        "failLevel": "ERROR",
+        "failureMessage": "ERROR WHILE DELETING SYSTEM PROPERTY CREATED FOR TEST CASE",
+        "responseChecks": [
+          {
+            "sourceType": "JSON",
+            "sourceKey": "$.success",
+            "compareMethod": "EQUAL",
+            "targetType": "PLAIN",
+            "targetKey": "true"
+          },
+          {
+            "sourceType": "JSON",
+            "sourceKey": "$.data",
+            "compareMethod": "EQUAL",
+            "targetType": "PLAIN"
+          },
+          {
+            "sourceType": "JSON",
+            "sourceKey": "$.records",
+            "compareMethod": "EQUAL",
+            "targetType": "PLAIN"
+          },
+          {
+            "sourceType": "JSON",
+            "sourceKey": "$.total",
+            "compareMethod": "EQUAL",
+            "targetType": "PLAIN",
+            "targetKey": "0"
+          }
+        ]
+      }
+    },
+    {
+      "name": "DeleteAjaxSystemProperty",
+      "description": "Clean up the property that was created on previous step F",
+      "path": "/resolve/service/sysproperties/deleteProperties",
+      "method": "POST",
+      "requestType": "JSON_APPLICATION",
+      "responseType": "JSON_APPLICATION",
+      "jsonPayload": {
+        "baseNode": "[\"\"]",
+        "replaceJsonField": [
+          {
+            "key": "$.[0]",
+            "type": "REFERENCE",
+            "value": "AjaxSystemProperty_SysId_5"
+          }
+        ]
+      },
+      "handleResponse": {
+        "statusCode": 200,
+        "failLevel": "ERROR",
+        "failureMessage": "ERROR WHILE DELETING SYSTEM PROPERTY CREATED FOR TEST CASE",
+        "responseChecks": [
+          {
+            "sourceType": "JSON",
+            "sourceKey": "$.success",
+            "compareMethod": "EQUAL",
+            "targetType": "PLAIN",
+            "targetKey": "true"
+          },
+          {
+            "sourceType": "JSON",
+            "sourceKey": "$.data",
+            "compareMethod": "EQUAL",
+            "targetType": "PLAIN"
+          },
+          {
+            "sourceType": "JSON",
+            "sourceKey": "$.records",
+            "compareMethod": "EQUAL",
+            "targetType": "PLAIN"
+          },
+          {
+            "sourceType": "JSON",
+            "sourceKey": "$.total",
+            "compareMethod": "EQUAL",
+            "targetType": "PLAIN",
+            "targetKey": "0"
+          }
+        ]
+      }
+    }
+  ]
+}
