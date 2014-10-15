@@ -1,30 +1,30 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <classpath>
 	<classpathentry kind="src" path="src"/>
-	<classpathentry kind="lib" path="C:/project/test/ControllerTest/Framework/framework/lib/com.springsource.net.sf.cglib-2.2.0.jar"/>
-	<classpathentry kind="lib" path="C:/project/test/ControllerTest/Framework/framework/lib/commons-io-2.1.jar"/>
-	<classpathentry kind="lib" path="C:/project/test/ControllerTest/Framework/framework/lib/commons-lang-2.6.jar"/>
-	<classpathentry kind="lib" path="C:/project/test/ControllerTest/Framework/framework/lib/guava-11.0-rc1.jar"/>
-	<classpathentry kind="lib" path="C:/project/test/ControllerTest/Framework/framework/lib/hk2-api-2.1.96.jar"/>
-	<classpathentry kind="lib" path="C:/project/test/ControllerTest/Framework/framework/lib/hk2-locator-2.1.96.jar"/>
-	<classpathentry kind="lib" path="C:/project/test/ControllerTest/Framework/framework/lib/hk2-utils-2.1.96.jar"/>
-	<classpathentry kind="lib" path="C:/project/test/ControllerTest/Framework/framework/lib/jackson-annotations-2.4.0.jar"/>
-	<classpathentry kind="lib" path="C:/project/test/ControllerTest/Framework/framework/lib/jackson-core-2.4.0.jar"/>
-	<classpathentry kind="lib" path="C:/project/test/ControllerTest/Framework/framework/lib/jackson-core-asl.jar" sourcepath="C:/Users/xia.hua/.m2/repository/org/codehaus/jackson/jackson-core-asl/1.9.7/jackson-core-asl-1.9.7-sources.jar"/>
-	<classpathentry kind="lib" path="C:/project/test/ControllerTest/Framework/framework/lib/jackson-databind-2.4.0.jar" sourcepath="C:/Users/xia.hua/.m2/repository/com/fasterxml/jackson/core/jackson-databind/2.4.0/jackson-databind-2.4.0-sources.jar"/>
-	<classpathentry kind="lib" path="C:/project/test/ControllerTest/Framework/framework/lib/jackson-datatype-json-org.jar"/>
-	<classpathentry kind="lib" path="C:/project/test/ControllerTest/Framework/framework/lib/jackson-mapper-asl.jar" sourcepath="C:/Users/xia.hua/.m2/repository/org/codehaus/jackson/jackson-mapper-asl/1.9.7/jackson-mapper-asl-1.9.7-sources.jar"/>
-	<classpathentry kind="lib" path="C:/project/test/ControllerTest/Framework/framework/lib/jackson-module-jsonschema-2.2.1.jar"/>
-	<classpathentry kind="lib" path="C:/project/test/ControllerTest/Framework/framework/lib/javax.inject-2.1.96.jar"/>
-	<classpathentry kind="lib" path="C:/project/test/ControllerTest/Framework/framework/lib/javax.ws.rs.jar"/>
-	<classpathentry kind="lib" path="C:/project/test/ControllerTest/Framework/framework/lib/javax.ws.rsqa.core.jar"/>
-	<classpathentry kind="lib" path="C:/project/test/ControllerTest/Framework/framework/lib/jersey-client.jar"/>
-	<classpathentry kind="lib" path="C:/project/test/ControllerTest/Framework/framework/lib/jersey-common.jar"/>
-	<classpathentry kind="lib" path="C:/project/test/ControllerTest/Framework/framework/lib/jersey-media-multipart.jar"/>
-	<classpathentry kind="lib" path="C:/project/test/ControllerTest/Framework/framework/lib/json-smart-1.1.jar"/>
-	<classpathentry kind="lib" path="C:/project/test/ControllerTest/Framework/framework/lib/slf4j-api-1.7.5.jar"/>
-	<classpathentry kind="lib" path="C:/project/test/ControllerTest/Framework/framework/lib/validation-api-1.0.0.GA.jar"/>
-	<classpathentry kind="lib" path="C:/project/test/ControllerTest/Framework/framework/lib/json-path.jar"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/jdk1.7.0_67"/>
+	<classpathentry kind="lib" path="lib/com.springsource.net.sf.cglib-2.2.0.jar"/>
+	<classpathentry kind="lib" path="lib/commons-io-2.1.jar"/>
+	<classpathentry kind="lib" path="lib/commons-lang-2.6.jar"/>
+	<classpathentry kind="lib" path="lib/guava-11.0-rc1.jar"/>
+	<classpathentry kind="lib" path="lib/hk2-api-2.1.96.jar"/>
+	<classpathentry kind="lib" path="lib/hk2-locator-2.1.96.jar"/>
+	<classpathentry kind="lib" path="lib/hk2-utils-2.1.96.jar"/>
+	<classpathentry kind="lib" path="lib/jackson-annotations-2.4.0.jar"/>
+	<classpathentry kind="lib" path="lib/jackson-core-2.4.0.jar"/>
+	<classpathentry kind="lib" path="lib/jackson-core-asl.jar"/>
+	<classpathentry kind="lib" path="lib/jackson-databind-2.4.0.jar"/>
+	<classpathentry kind="lib" path="lib/jackson-datatype-json-org.jar"/>
+	<classpathentry kind="lib" path="lib/jackson-mapper-asl.jar"/>
+	<classpathentry kind="lib" path="lib/jackson-module-jsonschema-2.2.1.jar"/>
+	<classpathentry kind="lib" path="lib/javax.inject-2.1.96.jar"/>
+	<classpathentry kind="lib" path="lib/javax.ws.rs.jar"/>
+	<classpathentry kind="lib" path="lib/javax.ws.rsqa.core.jar"/>
+	<classpathentry kind="lib" path="lib/jersey-client.jar"/>
+	<classpathentry kind="lib" path="lib/jersey-common.jar"/>
+	<classpathentry kind="lib" path="lib/jersey-media-multipart.jar"/>
+	<classpathentry kind="lib" path="lib/json-path.jar"/>
+	<classpathentry kind="lib" path="lib/json-smart-1.1.jar"/>
+	<classpathentry kind="lib" path="lib/slf4j-api-1.7.5.jar"/>
+	<classpathentry kind="lib" path="lib/validation-api-1.0.0.GA.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
