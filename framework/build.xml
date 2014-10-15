@@ -1,0 +1,53 @@
+<project name="framework" default="BUILD" basedir=".">
+
+    <!--
+    ***************************************
+    * CONSTANTS - variables declarations  *
+    ***************************************
+    -->
+    <property name="ant.build.javac.target" value="1.6" />
+
+    <!-- compiler debug level -->
+    <property name="DEBUG" value="on" />
+    <property name="FORCE" value="false" />
+    <property name="DEBUGLEVEL" value="lines,vars,source" />
+    <property name="NOWARN" value="false" />
+
+	<property name="rssrc" value="../" />
+
+    <target name="BUILD" depends="CLEAN,INIT,COMPILE,ARCHIVE">
+    </target>
+
+    <target name="INIT" depends="">
+        <mkdir dir="build" />
+		<mkdir dir="build/classes" />
+		<mkdir dir="build/jar" />
+    </target>
+    
+    <target name="CLEAN" depends="">
+    	<delete dir="build"/>
+    </target>
+
+	<path id="classpath">
+        <fileset dir="lib" includes="**/*.jar"/>
+    </path>
+	
+    <target name="COMPILE" depends="INIT">
+        <javac  srcdir="src" debug="${DEBUG}" nowarn="${NOWARN}" debuglevel="${DEBUGLEVEL}" destdir = "build/classes">
+            <classpath>
+				<path refid="classpath"/>
+            </classpath>
+            
+        </javac>
+    </target>
+
+    
+    <target name="ARCHIVE" depends="COMPILE">
+      <jar destfile="build/jar/framework.jar" basedir="build/classes">
+        <include name="**/*.class"/>
+      </jar>
+    </target>
+    
+
+
+</project>

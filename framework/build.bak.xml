@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<project default="create_run_jar" name="Create Runnable Jar for Project framework with Jar-in-Jar Loader">
+    <!--this file was created by Eclipse Runnable JAR Export Wizard-->
+    <!--ANT 1.7 is required                                        -->
+    <target name="create_run_jar">
+        <jar destfile="C:/project/ControllerTestFramework.jar">
+            <manifest>
+                <attribute name="Main-Class" value="org.eclipse.jdt.internal.jarinjarloader.JarRsrcLoader"/>
+                <attribute name="Rsrc-Main-Class" value="com.resolve.qa.framework.Test"/>
+                <attribute name="Class-Path" value="."/>
+                <attribute name="Rsrc-Class-Path" value="./ com.springsource.net.sf.cglib-2.2.0.jar guava-11.0-rc1.jar hk2-api-2.1.96.jar hk2-locator-2.1.96.jar hk2-utils-2.1.96.jar jackson-core-asl.jar jackson-datatype-json-org.jar jackson-mapper-asl.jar javax.inject-2.1.96.jar javax.ws.rs.jar javax.ws.rsqa.core.jar jersey-client.jar jersey-common.jar jersey-media-multipart.jar validation-api-1.0.0.GA.jar jackson-databind-2.4.0.jar jackson-module-jsonschema-2.2.1.jar jackson-annotations-2.4.0.jar jackson-core-2.4.0.jar"/>
+            </manifest>
+            <zipfileset src="jar-in-jar-loader.zip"/>
+            <fileset dir="C:/project/resolve3/src/framework/bin"/>
+            <zipfileset dir="C:\project\resolve3\src\framework\lib" includes="*.jar"/>
+        </jar>
+    </target>
+</project>
