@@ -9,6 +9,7 @@ import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.resolve.qa.framework.TestSuite;
+import com.resolve.qa.framework.numa.TestCases;
 
 public class TestCase extends JsonAbstract{
     private String jsonFileName;
@@ -16,6 +17,24 @@ public class TestCase extends JsonAbstract{
     private String username;
     private String password;
     private List<Test> tests = new ArrayList<Test>();
+    
+    public static TestCase GENERATE_RUNBOOK;
+	
+	static {
+		reload_generate_runbook();
+	}
+	
+	public static void reload_generate_runbook(){
+		try {
+			GENERATE_RUNBOOK = TestCase.parse(new File("resources/GenerateRunbook.json"));
+		} catch (JsonParseException jpe) {
+			jpe.printStackTrace();
+		} catch (JsonMappingException jme) {
+			jme.printStackTrace();
+		} catch (IOException ioe) {
+			ioe.printStackTrace();
+		}
+	}
     
     public TestCase() {
     	super();
@@ -113,5 +132,24 @@ public class TestCase extends JsonAbstract{
     public void execute() throws Exception {
         System.out.println(toTestSuite().execute());
 //    	toTestSuite().execute();
+    }
+    
+    public void generateRunBook(String tag) {
+    	String description = "";
+    	for (int index = 0; index < this.getTests().size(); index++) {
+    		description += this.getTests().get(index).getDescription() + "\r\n";
+    	}
+    	
+    	reload_generate_runbook();
+    	
+    	GENERATE_RUNBOOK.getTests().get(0).getTestOps().get(1).setSourceKey(this.getJsonFileName());
+    	GENERATE_RUNBOOK.getTests().get(0).getTestOps().get(2).setSourceKey(tag);
+    	GENERATE_RUNBOOK.getTests().get(0).getTestOps().get(3).setSourceKey(description);
+    	
+    	try {
+			GENERATE_RUNBOOK.execute();
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
     }
 }

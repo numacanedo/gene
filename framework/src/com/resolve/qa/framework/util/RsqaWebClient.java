@@ -558,7 +558,7 @@ public class RsqaWebClient
             switch(method)
             {
                 case POST:
-                    post(pageUrl);
+                    post(pageUrl, params);
                     break;
                 case PUT:
                     put(pageUrl);
@@ -969,6 +969,23 @@ public class RsqaWebClient
             this.setTargetUri(url);
             delete();
         }        
+        /**
+         * post - perform a post adding the params if any before actually do the post
+         * This will pass requests via url-encoded content type.
+         * sets our local headers, response code, current url, etc.
+         * @return - response content
+         */        
+        public void post(String url, Map<String, String> params)
+        {
+            this.setTargetUri(url);
+            if(params!=null) {
+                for(Map.Entry<String, String> entry: params.entrySet())
+                {
+                    this.setQueryParam(entry.getKey(), entry.getValue());
+                }
+            }
+            post();
+        }         
         
         /**
          * post - perform a post with the assumption that params and url were already set and

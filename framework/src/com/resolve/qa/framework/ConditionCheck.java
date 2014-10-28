@@ -159,6 +159,9 @@ public class ConditionCheck
             case EQUAL:
                 result = source.equals(target);
                 break;
+            case NOEQUAL:
+                result = !source.equals(target);
+                break;
             case CONTAIN:
                 result = source.contains(target);
                 break;

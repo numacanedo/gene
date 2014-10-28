@@ -1,6 +1,8 @@
 package com.resolve.qa.framework;
 
 import java.util.Map;
+import java.util.NoSuchElementException;
+import java.util.StringTokenizer;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
@@ -18,7 +20,6 @@ public class TestOp
     @JsonProperty(required = true)
     SOURCE_TARGET_TYPE sourceType;
     String sourceKey;
-    @JsonProperty(required = true)
     String targetKey;
     
     public TestOp() {
@@ -87,7 +88,7 @@ public class TestOp
             case JSON:
                 try
                 {
-                    source = JsonUtil.getJsonValue(jsonObj, sourceKey);
+            		source = JsonUtil.getJsonValue(jsonObj, sourceKey);
                 }
                 catch (NullPointerException e) {
                     source = new String("");
@@ -98,11 +99,57 @@ public class TestOp
                 }
                 break;
             case PLAIN:
-                source = sourceKey;
+        		source = sourceKey;
                 break;
             case REFERENCE:
-                source = (String)testData.get(sourceKey);
-                break;
+            	if (method.equals(TEST_OPERATION_TYPE.REPLACE)) {
+            		StringTokenizer sourceTokens;
+            		String sourceString;
+            		String keyString;
+            		String valueString;
+            		int valueTokenNumber = 0;
+            		
+                	try {
+                		sourceTokens	= new StringTokenizer(sourceKey, ".");
+            			sourceString	= (String)testData.get(sourceTokens.nextToken());
+            			keyString		= sourceTokens.nextToken();
+            			valueString		= "";
+            			while (sourceTokens.hasMoreTokens()) {
+            				if (valueTokenNumber > 0) {
+            					valueString	+= ".";
+            				}
+            				valueString	+= sourceTokens.nextToken();
+            				valueTokenNumber++;
+            			}
+            			
+            			source			= sourceString.replaceAll(keyString, valueString);
+                	} catch (NoSuchElementException nsee) {
+                		Log.log(Log.getIndent() + "FAIL - NoSuchElementException: source-" + sourceKey);
+                		Log.log(Log.getIndent() + "FAIL - Expected source format: source.key.value");
+                	}
+            	} else if (method.equals(TEST_OPERATION_TYPE.REPLACE_REFERENCE)) {
+            		StringTokenizer sourceTokens;
+            		String sourceString;
+            		String keyString;
+            		String valueString;
+            		int valueTokenNumber = 0;
+            		
+                	try {
+                		sourceTokens	= new StringTokenizer(sourceKey, ".");
+            			sourceString	= (String)testData.get(sourceTokens.nextToken());
+            			keyString		= sourceTokens.nextToken();
+            			valueString		= (String)testData.get(sourceTokens.nextToken());
+            			source			= sourceString.replaceAll(keyString, valueString);
+                	} catch (NoSuchElementException nsee) {
+                		Log.log(Log.getIndent() + "FAIL - NoSuchElementException: source-" + sourceKey);
+                		Log.log(Log.getIndent() + "FAIL - Expected source format: source.key.reference_value");
+                	}
+            	}
+            	
+            	else {
+            		source = (String)testData.get(sourceKey);
+            	}
+            	break;
             default:
                 Log.log(" FAIL - Not implement source type in value assign:\n " + this.toString());
                 return;
@@ -112,6 +159,20 @@ public class TestOp
             Log.log("Cannot get source value in value assign:\n " + this.toString());
             return;
         }
+        
+        switch (method) {
+            case SLEEP:             
+                try {   
+                    int sleep = Integer.parseInt(source);
+                    Thread.sleep(sleep * 1000);
+                } catch (InterruptedException ie) {
+                    Log.log(Log.getIndent() + "WARNING - Sleep Test Operation Failed");
+                } catch(NumberFormatException nfe){
+                    Log.log(Log.getIndent() + "FAIL -NumberFormatException: source-" + source);
+                }
+                return;
+        }
+       
         String target = (String)testData.get(targetKey);
         switch (method)
         {
@@ -130,6 +191,13 @@ public class TestOp
             case CONCATENATE:
                 target += source;
                 break;
+            case REPLACE:
+        		target = source;
+                break;
+            case REPLACE_REFERENCE:
+        		target = source;
+                break;
+            
         }
         testData.put(targetKey, target);
         return;

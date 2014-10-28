@@ -1,0 +1,406 @@
+{
+  "jsonFileName": "GenerateRunbook",
+  "baseURL": "http://fiddler:8080/resolve/service",
+  "username": "admin",
+  "password": "resolve",
+  "tests": [
+    {
+      "name": "Initialize Variables",
+      "description": "Initialize Variables",
+      "path": "/",
+      "method": "GET",
+      "requestType": "URLENCODED_FORM_APPLICATION",
+      "responseType": "URLENCODED_FORM_APPLICATION",
+      "handleResponse": {
+        "statusCode": 0,
+        "failLevel": "WARNING"
+      },
+      "testOps": [
+        {
+          "method": "ASSIGN",
+          "sourceType": "PLAIN",
+          "sourceKey": "ControllerAPI",
+          "targetKey": "wikidomain"
+        },
+        {
+          "method": "ASSIGN",
+          "sourceType": "PLAIN",
+          "sourceKey": "",
+          "targetKey": "wikiname"
+        },
+        {
+          "method": "ASSIGN",
+          "sourceType": "PLAIN",
+          "sourceKey": "",
+          "targetKey": "tag"
+        },
+        {
+          "method": "ASSIGN",
+          "sourceType": "PLAIN",
+          "sourceKey": "",
+          "targetKey": "description"
+        },
+        {
+          "method": "ASSIGN",
+          "sourceType": "REFERENCE",
+          "sourceKey": "wikiname",
+          "targetKey": "json_file"
+        },
+        {
+          "method": "CONCATENATE",
+          "sourceType": "PLAIN",
+          "sourceKey": ".json",
+          "targetKey": "json_file"
+        },
+        {
+          "method": "ASSIGN",
+          "sourceType": "REFERENCE",
+          "sourceKey": "wikidomain",
+          "targetKey": "wikifullname"
+        },
+        {
+          "method": "CONCATENATE",
+          "sourceType": "PLAIN",
+          "sourceKey": ".",
+          "targetKey": "wikifullname"
+        },
+        {
+          "method": "CONCATENATE",
+          "sourceType": "REFERENCE",
+          "sourceKey": "wikiname",
+          "targetKey": "wikifullname"
+        },
+        {
+          "method": "ASSIGN",
+          "sourceType": "PLAIN",
+          "sourceKey": "{section}\n1 Controller Test\n<form name=\"form1\" action=\"$wiki.action.execute\">\n<table class = \"ajaxtable\">\n    <input type=\"hidden\" name=\"action\" value=\"EXECUTEPROCESS\" />\n\t<input type=\"hidden\" name=\"PROBLEMID\" value= \"NEW\" />\n\t<input type=\"hidden\" alt=\"RSQA_TEST_RUNBOOK\" name=\"wiki\" value=\"$doc.getFullName()\" />\n\t<input type=\"hidden\" alt=\"RSQA_TEST_PARAMS\" name=\"MAIL\" value=\"true\"/>\n\t<tr>\n\t<td>DIRECTORY:</td>\n\t<td><input type=\"text\" size=\"35\" alt=\"RSQA_TEST_PARAMS\" name=\"DIRECTORY\" value=\"PARAM_DIRECTORY\" readonly=\"true\"></td>\n\t</tr>\n\t<tr>\n\t<td>FILE:</td>\n\t<td><input type=\"text\" size=\"35\" alt=\"RSQA_TEST_PARAMS\" name=\"FILE\" value=\"PARAM_FILE\"></td>\n\t</tr>\n\t<tr>\n\t<td>SEND RESULT TO:</td>\n\t<td><input id=\"address\" type=\"text\" alt=\"RSQA_TEST_PARAMS\" name=\"TO\" value=\"PARAM_TO\" /></td>\n\t</tr>\n\t<tr>\n\t<td>OVERRIDE SETTING IN TEST JSON:</td>\n\t<td>\n\t<input id=\"setting\" onclick=\"enableOverride()\" type=\"checkbox\" alt=\"RSQA_TEST_PARAMS\" checked=\"true\" name=\"SET\" value=\"true\"/> Override following setting in Json test file\n\t</td>\n\t</tr>\n\t<tr>\n\t<td>BASEURL:</td>\n\t<td><input id=\"url\" type=\"text\" alt=\"RSQA_TEST_PARAMS\" name=\"BASEURL\" value=\"PARAM_BASEURL\"/></td>\n\t</tr>\n\t<tr>\n\t<td>USERNAME:</td>\n\t<td><input id=\"username\" type=\"text\" alt=\"RSQA_TEST_PARAMS\" name=\"USERNAME\" value=\"PARAM_USERNAME\"/></td>\n\t</tr>\n\t<tr>\n\t<td>PASSWORD:</td>\n\t<td><input id=\"password\" type=\"text\" alt=\"RSQA_TEST_PARAMS\" name=\"PASSWORD\" value=\"PARAM_PASSWORD\"/></td>\n\t</tr>\n\t\n    <tr>\n    <td class=\"executeButton\"><input type=\"button\" name=\"Execute\" value=\"Execute\" onclick=\"$wiki.action.executeRunbook('form1');\" /></td>\n    </tr>\n</table>\n</form>\n\n<script>\nfunction enableOverride()\n{\n\tif (document.getElementById('setting').checked)\n\t{\n\t\tdocument.getElementById('url').disabled= false;\n\t\tdocument.getElementById('username').disabled= false;\n\t\tdocument.getElementById('password').disabled= false;\n\t}\n\telse\n\t{\n\t\tdocument.getElementById('url').disabled= true;\n\t\tdocument.getElementById('username').disabled= true;\n\t\tdocument.getElementById('password').disabled= true;\n\t\tdocument.getElementById('url').value = \"\";\n\t\tdocument.getElementById('username').value = \"\";\n\t\tdocument.getElementById('password').value = \"\";\n\t}\n}\n</script>\n{result}\n{result}\n\n{section}",
+          "targetKey": "content"
+        },
+        {
+          "method": "ASSIGN",
+          "sourceType": "PLAIN",
+          "sourceKey": "<mxGraphModel>\n  <root version=\"5.0\">\n    <mxCell id=\"0\"/>\n    <mxCell id=\"1\" parent=\"0\"/>\n    <Start label=\"Start\" description=\"PROCESS_TIMEOUT%3D30\" id=\"2\"> \n      <mxCell style=\"symbol;image=/resolve/jsp/model/images/symbols/start.png\" parent=\"1\" vertex=\"1\">\n        <mxGeometry x=\"535\" y=\"50\" width=\"30\" height=\"30\" as=\"geometry\"/>\n      </mxCell>\n      <params>\n        <inputs><![CDATA[{\"PROCESS_TIMEOUT\":\"30\"}]]></inputs>\n        <outputs><![CDATA[{}]]></outputs>\n      </params>\n    </Start>\n    <End label=\"End\" description=\"\" id=\"3\"> \n      <mxCell style=\"symbol;image=/resolve/jsp/model/images/symbols/end.png\" parent=\"1\" vertex=\"1\">\n        <mxGeometry x=\"535\" y=\"310\" width=\"30\" height=\"30\" as=\"geometry\"/>\n      </mxCell>\n      <params>\n        <inputs><![CDATA[]]></inputs>\n        <outputs><![CDATA[]]></outputs>\n      </params>\n    </End>\n    <Task label=\"executeControllerTestInJson\" description=\"executeControllerTestInJson#CI?DIRECTORY%253D%2524PARAM%257BDIRECTORY%257D%26FILE%253D%2524PARAM%257BFILE%257D%26USERNAME%253D%2524PARAM%257BUSERNAME%257D%26PASSWORD%253D%2524PARAM%257BPASSWORD%257D%26BASEURL%253D%2524PARAM%257BBASEURL%257D\" tooltip=\"{&quot;success&quot;:true,&quot;data&quot;:{&quot;INPUT_DESC&quot;:[&quot;PASSWORD&amp;&quot;,&quot;USERNAME&amp;&quot;,&quot;BASEURL&amp;&quot;,&quot;FILE&amp;&quot;,&quot;DIRECTORY&amp;&quot;],&quot;OUTPUT_DESC&quot;:[]}}\" href=\"executeControllerTestInJson#CI\" detail=\"\" id=\"4\"> \n      <name>executeControllerTestInJson#CI</name>  \n      <mxCell style=\"rounded;labelBackgroundColor=none;strokeColor=#A9A9A9;fillColor=#D3D3D3;gradientColor=white;verticalLabelPosition=middle;verticalAlign=middle\" parent=\"1\" vertex=\"1\">\n        <mxGeometry x=\"480\" y=\"180\" width=\"140\" height=\"40\" as=\"geometry\"/>\n      </mxCell>\n      <params>\n        <inputs><![CDATA[{\"DIRECTORY\":\"$PARAM{DIRECTORY}\",\"FILE\":\"$PARAM{FILE}\",\"USERNAME\":\"$PARAM{USERNAME}\",\"PASSWORD\":\"$PARAM{PASSWORD}\",\"BASEURL\":\"$PARAM{BASEURL}\"}]]></inputs>\n        <outputs><![CDATA[{}]]></outputs>\n      </params>\n    </Task>\n    <Task label=\"Send to QA\" description=\"Send to QA#CI?SUBJECT%253D%2524FLOW%257BSUBJECT%257D%26BODY%253D%2524FLOW%257BBODY%257D%26TO%253D%2524PARAM%257BTO%257D%26MAIL%253D%2524PARAM%257BMAIL%257D%26ATTACHMENT%253D%2524FLOW%257BATTACHMENT%257D\" tooltip=\"{&quot;success&quot;:true,&quot;data&quot;:{&quot;INPUT_DESC&quot;:[&quot;BODY&amp;Email body text&quot;,&quot;MAIL&amp;If send result to input email address&quot;,&quot;SUBJECT&amp;Email subject&quot;,&quot;TO&amp;Other email address need send to&quot;,&quot;ATTACHMENT&amp;Comma separated list of filenames to be attached&quot;],&quot;OUTPUT_DESC&quot;:[]}}\" href=\"Send to QA#CI\" detail=\"send runbook result to QA\" id=\"11\"> \n      <name>Send to QA#CI</name>  \n      <mxCell style=\"rounded;labelBackgroundColor=none;strokeColor=#A9A9A9;fillColor=#D3D3D3;gradientColor=white;verticalLabelPosition=middle;verticalAlign=middle\" parent=\"1\" vertex=\"1\">\n        <mxGeometry x=\"500\" y=\"240\" width=\"100\" height=\"40\" as=\"geometry\"/>\n      </mxCell>\n      <params>\n        <inputs><![CDATA[{\"SUBJECT\":\"$FLOW{SUBJECT}\",\"BODY\":\"$FLOW{BODY}\",\"TO\":\"$PARAM{TO}\",\"MAIL\":\"$PARAM{MAIL}\",\"ATTACHMENT\":\"$FLOW{ATTACHMENT}\"}]]></inputs>\n        <outputs><![CDATA[{}]]></outputs>\n      </params>\n    </Task>\n    <Edge label=\"\" description=\"\" id=\"6\">\n      <mxCell style=\"straight;noEdgeStyle=1;noEdgeStyle=1;noEdgeStyle=1;noEdgeStyle=1;noEdgeStyle=1;noEdgeStyle=1;noEdgeStyle=1;noEdgeStyle=1;noEdgeStyle=1;noEdgeStyle=1;noEdgeStyle=1;noEdgeStyle=1;noEdgeStyle=1;noEdgeStyle=1\" parent=\"1\" source=\"11\" target=\"3\" edge=\"1\">\n        <mxGeometry relative=\"1\" as=\"geometry\"/>\n      </mxCell>\n    </Edge>\n    <Edge label=\"\" description=\"\" id=\"12\">\n      <mxCell style=\"straight;noEdgeStyle=1;noEdgeStyle=1;noEdgeStyle=1;noEdgeStyle=1;noEdgeStyle=1;noEdgeStyle=1;noEdgeStyle=1;noEdgeStyle=1;noEdgeStyle=1;noEdgeStyle=1;noEdgeStyle=1;noEdgeStyle=1;noEdgeStyle=1;noEdgeStyle=1\" parent=\"1\" source=\"4\" target=\"11\" edge=\"1\">\n        <mxGeometry relative=\"1\" as=\"geometry\">\n          <mxPoint x=\"550\" y=\"180\" as=\"sourcePoint\"/>\n          <mxPoint x=\"550\" y=\"210\" as=\"targetPoint\"/>\n        </mxGeometry>\n      </mxCell>\n    </Edge>\n    <Edge label=\"\" description=\"\" id=\"13\">\n      <mxCell style=\"straight;noEdgeStyle=1;noEdgeStyle=1;noEdgeStyle=1;noEdgeStyle=1;noEdgeStyle=1\" parent=\"1\" source=\"2\" target=\"4\" edge=\"1\">\n        <mxGeometry relative=\"1\" as=\"geometry\"/>\n      </mxCell>\n    </Edge>\n  </root>\n</mxGraphModel>",
+          "targetKey": "model"
+        },
+        {
+          "method": "ASSIGN",
+          "sourceType": "PLAIN",
+          "sourceKey": "{\"ufullname\":\"PARAM_WIKI_FULLNAME\",\"usummary\":\"Template.CREATECONTROLLERTEST\",\"id\":\"PARAM_ID\"} ",
+          "targetKey":"impex_description"
+        },
+        {
+          "method": "REPLACE_REFERENCE",
+          "sourceType": "REFERENCE",
+          "sourceKey": "impex_description.PARAM_WIKI_FULLNAME.wikifullname",
+          "targetKey": "impex_description"
+        },
+        {
+          "method": "REPLACE",
+          "sourceType": "REFERENCE",
+          "sourceKey": "content.PARAM_DIRECTORY./opt/resolve/test/ControllerTest/JsonFiles/",
+          "targetKey": "content"
+        },
+        {
+          "method": "REPLACE_REFERENCE",
+          "sourceType": "REFERENCE",
+          "sourceKey": "content.PARAM_FILE.json_file",
+          "targetKey": "content"
+        },
+        {
+          "method": "REPLACE",
+          "sourceType": "REFERENCE",
+          "sourceKey": "content.PARAM_TO.numa.canedo@resolve.systems",
+          "targetKey": "content"
+        },
+        {
+          "method": "REPLACE",
+          "sourceType": "REFERENCE",
+          "sourceKey": "content.PARAM_BASEURL.http://devcent64-1.generationetech.com:8080/resolve/service",
+          "targetKey": "content"
+        },
+        {
+          "method": "REPLACE",
+          "sourceType": "REFERENCE",
+          "sourceKey": "content.PARAM_USERNAME.admin",
+          "targetKey": "content"
+        },
+        {
+          "method": "REPLACE",
+          "sourceType": "REFERENCE",
+          "sourceKey": "content.PARAM_PASSWORD.resolve",
+          "targetKey": "content"
+        },
+        {
+          "method": "ASSIGN",
+          "sourceType": "PLAIN",
+          "sourceKey":  "[{\"field\":\"uname\",\"type\":\"auto\",\"condition\":\"equals\",\"value\":\"PARAM_WIKI_FULLNAME\"}]",
+          "targetKey": "filter"
+        },
+        {
+          "method": "REPLACE_REFERENCE",
+          "sourceType": "REFERENCE",
+          "sourceKey": "filter.PARAM_WIKI_FULLNAME.wikiname",
+          "targetKey": "filter"
+        }
+      ]
+    },
+    {
+      "name": "save",
+      "description": "Save runbook",
+      "path": "/wiki/save",
+      "method": "POST",
+      "requestType": "JSON_APPLICATION",
+      "responseType": "JSON_APPLICATION",
+      "jsonPayload": {
+        "baseNode": "{\"utitle\":\"\",\"ufullname\":\"\",\"ucontent\":\"\",\"umodelProcess\":\"\",\"udisplayMode\":\"\",\"ucatalogId\":\"\",\"uwikiParameters\":\" []\",\"umodelException\":\"\",\"udecisionTree\":\"\",\"uisRequestSubmission\":false,\"uisDefaultRole\":\"true\",\"uisDocumentStreamLocked\":\"false\",\"uisCurrentUserFollowing\":\"false\",\"uisDeleted\":\"false\",\"uisHidden\":\"false\",\"uisLocked\":\"false\",\"ulockedBy\":\"\",\"uname\":\"\",\"unamespace\":\"\",\"usummary\":\"Template.CREATECONTROLLERTEST\",\"ulastReviewedOn\":null,\"ulastReviewedBy\":\"\",\"softLock\":\"true\",\"lockedByUsername\":\"\",\"uresolutionBuilderId\":\"\",\"sysCreatedBy\":\"\",\"sysUpdatedBy\":\"\",\"sysOrg\":\"\",\"id\":\"\",\"sysCreatedOn\":null,\"sysUpdatedOn\":null,\"accessRights\":{\"id\":\"UNDEFINED\",\"sys_id\":\"UNDEFINED\",\"sysCreatedOn\":0,\"sysCreatedBy\":\"UNDEFINED\",\"sysUpdatedOn\":0,\"sysUpdatedBy\":\"UNDEFINED\",\"sysModCount\":0,\"sysPerm\":\"UNDEFINED\",\"sysOrg\":\"UNDEFINED\",\"sysIsDeleted\":null,\"sysOrganizationName\":\"UNDEFINED\",\"ureadAccess\":\"admin\",\"uwriteAccess\":\"admin\",\"uexecuteAccess\":\"admin\",\"uadminAccess\":\"admin\",\"uresourceType\":\"wikidoc\",\"uresourceName\":\"\",\"uresourceId\":\"UNDEFINED\"},\"utag\":\"\",\"ucatalog\":\"\"}",
+        "replaceJsonField": [
+          {
+            "key": "ucontent",
+            "type": "REFERENCE",
+            "value": "content"
+          },
+          {
+            "key": "umodelProcess",
+            "type": "REFERENCE",
+            "value": "model"
+          },
+          {
+            "key": "ufullname",
+            "type": "REFERENCE",
+            "value": "wikifullname"
+          },
+          {
+            "key": "unamespace",
+            "type": "REFERENCE",
+            "value": "wikidomain"
+          },
+          {
+            "key": "uname",
+            "type": "REFERENCE",
+            "value": "wikiname"
+          },
+          {
+            "key": "utag",
+            "type": "REFERENCE",
+            "value": "tag"
+          }
+        ]
+      },
+      "handleResponse": {
+        "statusCode": 200,
+        "failLevel": "ERROR",
+        "failureMessage": "Failed to create Runbook",
+        "responseChecks": [
+          {
+            "sourceType": "JSON",
+            "sourceKey": "$.success",
+            "compareMethod": "EQUAL",
+            "targetType": "PLAIN",
+            "targetKey": "true"
+          }
+        ]
+      },
+      "testOps": [
+        {
+          "method": "ASSIGN",
+          "sourceType": "JSON",
+          "sourceKey": "$.data.sys_id",
+          "targetKey": "sys_id"
+        },
+        {
+          "method": "REPLACE_REFERENCE",
+          "sourceType": "REFERENCE",
+          "sourceKey": "impex_description.PARAM_ID.sys_id",
+          "targetKey": "impex_description"
+        }
+      ]
+    },
+    {
+      "name": "Save",
+      "description": "Save Module",
+      "path": "/impex/save",
+      "method": "POST",
+      "requestType": "JSON_APPLICATION",
+      "responseType": "JSON_APPLICATION",
+      "jsonPayload": {
+        "baseNode": "{\"uname\":\"\",\"uforwardWikiDocument\":\"\",\"uscriptName\":\"\",\"udescription\":\"\",\"sysCreatedBy\":\"\",\"sysUpdatedBy\":\"\",\"sysOrg\":\"\",\"id\":\"\",\"sysCreatedOn\":null,\"sysUpdatedOn\":null,\"impexDefinition\":[{\"type\":\"wiki\",\"namespace\":\"\",\"description\":\"\",\"options\":{\"wikiSubRB\":true,\"wikiTags\":true,\"wikiForms\":false,\"wikiRefATs\":true,\"wikiOverride\":true,\"wikiCatalogs\":false}}]}",
+        "replaceJsonField": [
+          {
+            "key": "uname",
+            "type": "REFERENCE",
+            "value": "wikiname"
+          },
+          {
+            "key": "udescription",
+            "type": "REFERENCE",
+            "value": "description"
+          },
+          {
+            "key": "impexDefinition[0].namespace",
+            "type": "REFERENCE",
+            "value": "wikifullname"
+          },
+          {
+            "key": "impexDefinition[0].description",
+            "type": "REFERENCE",
+            "value": "impex_description"
+          }
+        ]
+      },
+      "handleResponse": {
+        "statusCode": 200,
+        "failLevel": "ERROR",
+        "failureMessage": "Failed to create module",
+        "responseChecks": [
+          {
+            "sourceType": "JSON",
+            "sourceKey": "$.success",
+            "compareMethod": "EQUAL",
+            "targetType": "PLAIN",
+            "targetKey": "true"
+          }
+        ]
+      }
+    },
+    {
+      "name": "Export",
+      "description": "Export Runbook Module",
+      "path": "/impex/export",
+      "method": "POST",
+      "requestType": "URLENCODED_FORM_APPLICATION",
+      "responseType": "JSON_APPLICATION",
+      "requestForm": [
+        {
+          "key": "moduleName",
+          "type": "REFERENCE",
+          "value": "wikiname"
+        },
+        {
+          "key": "excludeIds",
+          "type": "PLAIN",
+          "value": ""
+        }
+      ],
+      "handleResponse": {
+        "statusCode": 200,
+        "failLevel": "ERROR",
+        "failureMessage": "Failed to export Runbook Module",
+        "responseChecks": [
+          {
+            "sourceType": "JSON",
+            "sourceKey": "$.success",
+            "compareMethod": "EQUAL",
+            "targetType": "PLAIN",
+            "targetKey": "true"
+          }
+        ]
+      }
+    },
+    {
+      "name": "List",
+      "description": "Get Module Id",
+      "path": "/impex/list",
+      "method": "GET",
+      "requestType": "URLENCODED_FORM_APPLICATION",
+      "responseType": "JSON_APPLICATION",
+      "queryParams": [
+        {
+          "key": "filter",
+          "type": "REFERENCE",
+          "value": "filter"
+        },
+        {
+          "key": "page",
+          "type": "PLAIN",
+          "value": "1"
+        },
+        {
+          "key": "start",
+          "type": "PLAIN",
+          "value": "0"
+        },
+        {
+          "key": "limit",
+          "type": "PLAIN",
+          "value": "50"
+        },
+        {
+          "key": "sort",
+          "type": "PLAIN",
+          "value": "[{\"property\":\"sysUpdatedOn\",\"direction\":\"DESC\"}]"
+        }
+      ],
+      "handleResponse": {
+        "statusCode": 200,
+        "failLevel": "ERROR",
+        "failureMessage": "Failed to retrieve Module Id",
+        "responseChecks": [
+          {
+            "sourceType": "JSON",
+            "sourceKey": "$.success",
+            "compareMethod": "EQUAL",
+            "targetType": "PLAIN",
+            "targetKey": "true"
+          },
+          {
+            "sourceType": "JSON",
+            "sourceKey": "$.records",
+            "compareMethod": "SIZEEQUAL",
+            "targetType": "PLAIN",
+            "targetKey": "1"
+          }
+        ]
+      },
+      "testOps": [
+        {
+          "method": "ASSIGN",
+          "sourceType": "JSON",
+          "sourceKey": "$.records[0].sys_id",
+          "targetKey": "module_sys_id"
+        },
+        {
+          "method": "ASSIGN",
+          "sourceType": "REFERENCE",
+          "sourceKey": "wikifullname",
+          "targetKey": "filename"
+        },
+        {
+          "method": "CONCATENATE",
+          "sourceType": "PLAIN",
+          "sourceKey": ".zip",
+          "targetKey": "filename"
+        },
+        {
+          "method": "SLEEP",
+          "sourceType": "PLAIN",
+          "sourceKey": "5",
+          "targetKey": "5"
+        }
+      ]
+    },
+    {
+      "name": "Download",
+      "description": "Download Module",
+      "path": "/wiki/impex/download",
+      "method": "GET",
+      "requestType": "URLENCODED_FORM_APPLICATION",
+      "responseType": "JSON_APPLICATION",
+      "queryParams": [
+        {
+          "key": "filename",
+          "type": "REFERENCE",
+          "value": "filename"
+        },
+        {
+          "key": "moduleId",
+          "type": "REFERENCE",
+          "value": "module_sys_id"
+        }
+      ],
+      "handleResponse": {
+        "statusCode": 200,
+        "failLevel": "WARNING"
+      }
+    }
+  ]
+}

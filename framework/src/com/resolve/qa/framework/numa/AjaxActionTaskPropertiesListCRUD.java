@@ -112,7 +112,7 @@ public static final String TEST_CASES_HOME = "C:\\Users\\ncanedo\\Desktop\\GenE\
 			test2.addTestOp(new TestOp(TestOp.METHOD.ADD, TestOp.SOURCE_TYPE.PLAIN, "1", expectedTotal));
 			test2.addTestOp(new TestOp(TestOp.METHOD.ADD, TestOp.SOURCE_TYPE.PLAIN, "1", totalRecordsExpected));
 			
-			testCase.addTest(test2.copy());
+			testCase.addTest((Test) test2.copy());
 			// ------------------------------------------------------------------
 		}
 		
@@ -131,7 +131,7 @@ public static final String TEST_CASES_HOME = "C:\\Users\\ncanedo\\Desktop\\GenE\
 			test7.cleanTestOps();
 			test7.addTestOp(new TestOp(TestOp.METHOD.ADD, TestOp.SOURCE_TYPE.PLAIN, "-1", totalRecordsExpected));
 			
-			testCase.addTest(test7.copy());
+			testCase.addTest(test7.<ListTest>copy());
 			// ------------------------------------------------------------------			
 		}
 		

@@ -219,10 +219,6 @@ public class Test extends JsonAbstract {
     	this.endConditons.add(endConditon);
     }
     
-    public Test copy() {
-    	return (Test)abstractCopy();
-    }
-    
     public void setStatusCode(int statusCode) {
 		this.getHandleResponse().setStatusCode(statusCode);
 	}
@@ -331,5 +327,36 @@ public class Test extends JsonAbstract {
     
     public void setJsonEqualPlainResponseCheck(String sourceKey, String targetKey){
     	this.setResponseCheck(new CheckType(CheckType.SOURCE_TYPE.JSON, sourceKey, CheckType.COMPARE_METHOD.EQUAL, CheckType.TARGET_TYPE.PLAIN, targetKey));
+    }
+    
+    public void setJsonPayloadBaseNode(String baseNode) {
+    	if (this.getJsonPayload() == null) {
+    		this.setJsonPayload(new JsonPayload());
+    	}
+    	
+    	this.getJsonPayload().setBaseNode(baseNode);
+    }
+    
+    public void setJsonPayloadReplaceJsonField(ParamType replaceJsonField) {
+    	boolean found = false;
+    	
+    	if (this.getJsonPayload() != null && this.getJsonPayload().getValidationReplaceJsonField() != null) {
+    		for (int index = 0; index < this.getHandleResponse().getResponseChecks().size(); index++) {
+    			if(this.getJsonPayload().getReplaceJsonField().get(index).getKey().equalsIgnoreCase(replaceJsonField.getKey())) {
+    				this.getJsonPayload().getReplaceJsonField().set(index, replaceJsonField);
+    				
+    				found = true;
+    			}
+    		}
+    	} else {
+    		if (this.getJsonPayload() == null) {
+    			this.setJsonPayload(new JsonPayload());
+    		}
+    		this.getJsonPayload().setReplaceJsonField(new ArrayList<ParamType>());
+    	}
+    	
+    	if (!found) {
+    		this.getJsonPayload().getReplaceJsonField().add(replaceJsonField);
+    	}
     }
 }

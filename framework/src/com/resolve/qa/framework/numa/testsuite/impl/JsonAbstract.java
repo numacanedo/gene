@@ -44,9 +44,10 @@ public abstract class JsonAbstract {
     	return jsonFile(new File(path), name);
     }
     
-    public Object abstractCopy() {
+    @SuppressWarnings("unchecked")
+	public  <T extends JsonAbstract> T copy() {
     	try {
-			return new ObjectMapper().readValue(json(), this.getClass());
+			return (T) new ObjectMapper().readValue(json(), this.getClass());
 		} catch (JsonParseException e) {
 			e.printStackTrace();
 		} catch (JsonMappingException e) {

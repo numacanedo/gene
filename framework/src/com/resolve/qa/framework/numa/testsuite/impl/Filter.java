@@ -2,7 +2,7 @@ package com.resolve.qa.framework.numa.testsuite.impl;
 
 public class Filter extends JsonAbstract{
 	public static enum CONDITION {
-		EQUALS, NOTEQUALS, CONTAINS, NOTCONTAINS, STARTSWITH, NOTSTARTSWITH, ENDWITH, NOTENDWITH, ON, BEFORE, AFTER
+		equals, notEquals, contains, notContains, startsWith, notStartsWith, endWith, notEndWith, on, before, after;
 	}
 	
 	private String field;

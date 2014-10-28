@@ -2,7 +2,7 @@ package com.resolve.qa.framework.numa.testsuite.impl;
 
 public class TestOp  extends JsonAbstract{
 	public static enum METHOD {
-		ASSIGN, ADD
+		ASSIGN, ADD, CONCATENATE, REPLACE, REPLACE_REFERENCE, SLEEP
 	}
 	
 	public static enum SOURCE_TYPE {

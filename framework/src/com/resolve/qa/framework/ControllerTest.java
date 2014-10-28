@@ -546,7 +546,7 @@ public class ControllerTest
         }
         
         if(exeHandleResponse==null || exeHandleResponse.getStatusCode()==0) exeHandleResponse=handleResponse;
-        if (exeHandleResponse != null)
+        if (exeHandleResponse != null && exeHandleResponse.getStatusCode()!=0)
         {
 
             try

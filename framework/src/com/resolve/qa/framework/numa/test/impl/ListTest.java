@@ -1,10 +1,21 @@
 package com.resolve.qa.framework.numa.test.impl;
 
+import java.io.IOException;
+
+import com.fasterxml.jackson.core.JsonParseException;
+import com.fasterxml.jackson.core.JsonParser;
+import com.fasterxml.jackson.databind.JsonMappingException;
+import com.fasterxml.jackson.databind.MappingIterator;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.resolve.qa.framework.numa.testsuite.impl.Filter;
+import com.resolve.qa.framework.numa.testsuite.impl.FilterArray;
 import com.resolve.qa.framework.numa.testsuite.impl.HandleResponse;
 import com.resolve.qa.framework.numa.testsuite.impl.ParamType;
 import com.resolve.qa.framework.numa.testsuite.impl.Test;
 
 public class ListTest extends Test{
+	private Filter filter;
+	
 	public ListTest() {
 		// ============================== Test ==============================
 		super();
@@ -19,7 +30,7 @@ public class ListTest extends Test{
 		this.setPage("1");
 		this.setStart("0");
 		this.setLimit("50");
-		this.setSort("[{\"property\":\"uname\",\"direction\":\"ASC\"}]");
+		this.setSort("[{\"property\":\"sysCreatedOn\",\"direction\":\"DESC\"}]");
 		
 		this.setStatusCode(200);
 		this.setFailLevel(HandleResponse.FAIL_LEVEL.ERROR);
@@ -63,8 +74,24 @@ public class ListTest extends Test{
     	this.setQueryParam(new ParamType("sort", ParamType.TYPE.PLAIN, sort));
     }
     
-    public ListTest copy() {
-    	return (ListTest)abstractCopy();
+    public static void main(String[] args) throws JsonParseException, JsonMappingException, IOException {
+//    	String filter = "[{\"field\":\"assignedToName\",\"type\":\"auto\",\"condition\":\"equals\",\"value\":\"Alex Martin\"}]";
+    	String filter = "{\"field\":\"assignedToName\",\"type\":\"auto\",\"condition\":\"equals\",\"value\":\"Alex Martin\"}";
+    	
+    	Filter filterArray = new ObjectMapper().readValue(filter, new Filter().getClass());
+    	
+    	
+    	
+    	Filter f = filterArray.copy();
+    	filterArray.setValue("kohkiobsd");
+    	
+    	System.out.println(filterArray);
+    	System.out.println(f);
+    	
+//    	System.out.println(Filter.CONDITION.EQUALS);
+    	
+//    	System.out.println(Filter.CONDITION.valueOf("equals"));
+    	
     }
 	
 }
