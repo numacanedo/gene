@@ -173,6 +173,11 @@ class Handlers
         if (oSession.host.toLowerCase() == "fiddler:8080") oSession.host = "resolve:8080";
         
         // ====================================================================================================
+        // Hide Client Poll Requests
+        // ----------------------------------------------------------------------------------------------------
+        if (oSession.fullUrl.Contains("/client/poll")) oSession["ui-hide"] = "do not want to see";
+        
+        // ====================================================================================================
         // Show only requests for resolve/service
         // ----------------------------------------------------------------------------------------------------
         if (!oSession.fullUrl.Contains("/resolve/service")) oSession["ui-hide"] = "do not want to see";
@@ -189,10 +194,6 @@ class Handlers
         //   ) oSession["ui-hide"] = "do not want to see";
         //if (oSession.fullUrl.Contains("/resolve/service/wiki/impex/download")) 
         
-        
-        if (!oSession.m_clientIP.Contains("192.168") && oSession.fullUrl.Contains("/resolve/service")) {
-            oSession.SaveRequest("C:\\Users\\ncanedo\\Desktop\\Requests\\" + oSession.SuggestedFilename, false);
-        }
         
         
         if ((null != gs_ReplaceToken) && (oSession.url.indexOf(gs_ReplaceToken)>-1)) {   // Case sensitive
@@ -306,6 +307,30 @@ class Handlers
             && oSession.fullUrl.Contains("/resolve/service/wiki/impex/download"))
         { 
             oSession.SaveResponseBody("C:\\Users\\ncanedo\\Desktop\\RunBooks\\" + oSession.SuggestedFilename);
+        }
+        
+        var baseUrl:String = "/resolve/service";
+        var filename:String = "";
+        
+        if (oSession.url.Contains(baseUrl) && !oSession.url.Contains("client/poll")) {
+            var JSONResponse = Fiddler.WebFormats.JSON.JsonDecode(oSession.GetResponseBodyAsString());
+            var success:String = String.Concat(JSONResponse.JSONObject["success"].ToString());
+            var startPosition:Number = oSession.host.Length + baseUrl.Length + 1;
+            var endPosition:Number = oSession.url.Length;
+            
+            if (success.Equals("True")) {
+                success = "Success";
+            } else {
+                success = "False";
+            }
+            
+            if (oSession.url.Contains("?")) {
+                endPosition = oSession.url.IndexOf("?");
+            }
+            
+            filename = oSession.url.Substring(startPosition, endPosition - startPosition).Replace("/", ".") + "-" + success + "_" + oSession.SuggestedFilename.Replace("_", "");
+            
+            oSession.SaveSession("C:\\Users\\ncanedo\\Desktop\\FiddlerSessions\\" + filename, false);
         }
     }
         
@@ -537,6 +562,7 @@ class Handlers
     }
     }
 }
+
 
 
 
