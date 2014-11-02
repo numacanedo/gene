@@ -119,15 +119,28 @@ class Handlers
                 startPosition = oSession.url.IndexOf("?") + 1;
             }
             
-            return oSession.url.Substring(startPosition, oSession.url.Length - startPosition);
+            var params = oSession.url.Substring(startPosition, oSession.url.Length - startPosition).split("&");
+            var index = 0;
+            var parameters: String = "";
+    
+            for (var i in params) {
+                var key      = params[i].split("=")[0];
+                var value    = unescape(params[i].split("=")[1]);
+
+                if (!String.Concat(key).Equals("_dc")) {
+                    parameters = parameters + key + "=" + value + " ";
+                }
+            }
+            
+            return parameters;
         } else {
-            return oSession.url.Substring(oSession.host.Length);
+            return unescape("[" + oSession.url.Substring(oSession.host.Length).Replace("&", "] [") + "]");
         }
     }
         
     public static BindUIColumn("Test")
     function Test(oSession: Session): String{
-        if (responseReady(oSession)) {
+        if (responseReady(oSession) && oSession.fullUrl.Contains("/resolve/service") && !oSession.fullUrl.Contains("/client/poll")) {
 
             var test = Fiddler.WebFormats.JSON.JsonDecode('{name: "", path: "", description: "", method: "", requestType: "", responseType: "", queryParams: [], requestForm: [], jsonPayload: {baseNode: ""}, handleResponse: {statusCode: "", failLevel: "", failureMessage: "", responseChecks: []}}');
             var payload: String      = Payload(oSession);
