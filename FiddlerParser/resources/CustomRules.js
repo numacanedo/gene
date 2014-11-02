@@ -1,7 +1,7 @@
 import System;
+import System.Collections;
 import System.Windows.Forms;
 import Fiddler;
-import System.Collections;
 
 // INTRODUCTION
 // This is the FiddlerScript Rules file, which creates some of the menu commands and
@@ -66,7 +66,191 @@ class Handlers
         Utilities.LaunchHyperlink(sAction);
     }
     */
+        
+    public static BindUIColumn("Method")
+    function Method(oSession: Session): String{
+        return oSession.oRequest.headers.HTTPMethod;
+    }
+        
+    public static BindUIColumn("Operation")
+    function Operation(oSession: Session): String{
+        var baseUrl: String = "/resolve/service";
+        
+        if (oSession.url.Contains(baseUrl)) {
+            var startPosition:Number = oSession.host.Length + baseUrl.Length;
+            var endPosition:Number = oSession.url.Length;
+            
+            if (oSession.url.Contains("?")) {
+                endPosition = oSession.url.IndexOf("?");
+            }
+            
+            return oSession.url.Substring(startPosition, endPosition - startPosition);
+        } else {
+            return oSession.url.Substring(oSession.host.Length);
+        }
+    }
+        
+    public static BindUIColumn("Payload")
+    function Payload(oSession: Session): String{
+        var requestBody:String = oSession.GetRequestBodyAsString();
+        return requestBody;
+    }
+    
+    public static BindUIColumn("Success")
+    function Success(oSession: Session): String{
+        if (responseReady(oSession)) return readResponseValue(oSession, "success");
+        return String.Empty;
+    }
+        
+    public static BindUIColumn("Message")
+    function Message(oSession: Session): String{
+        if (responseReady(oSession)) return readResponseValue(oSession, "message");
+        return String.Empty;
+    }
+        
+    public static BindUIColumn("Parameters")
+    function Parameters(oSession: Session): String{
+        var baseUrl: String = "/resolve/service";
+        
+        if (oSession.url.Contains(baseUrl)) {
+            var startPosition:Number = oSession.url.Length;
+            
+            if (oSession.url.Contains("?")) {
+                startPosition = oSession.url.IndexOf("?") + 1;
+            }
+            
+            return oSession.url.Substring(startPosition, oSession.url.Length - startPosition);
+        } else {
+            return oSession.url.Substring(oSession.host.Length);
+        }
+    }
+        
+    public static BindUIColumn("Test")
+    function Test(oSession: Session): String{
+        if (responseReady(oSession)) {
 
+            var test = Fiddler.WebFormats.JSON.JsonDecode('{name: "", path: "", description: "", method: "", requestType: "", responseType: "", queryParams: [], requestForm: [], jsonPayload: {baseNode: ""}, handleResponse: {statusCode: "", failLevel: "", failureMessage: "", responseChecks: []}}');
+            var payload: String      = Payload(oSession);
+            var parameters: String   = Parameters(oSession);
+    
+    
+            test.JSONObject["name"]           = Operation(oSession);
+            test.JSONObject["path"]           = Operation(oSession);
+            test.JSONObject["description"]    = Operation(oSession);
+            test.JSONObject["method"]         = Method(oSession);
+            test.JSONObject["requestType"]    = "URLENCODED_FORM_APPLICATION";
+            test.JSONObject["responseType"]   = "JSON_APPLICATION";
+    
+            test.JSONObject["handleResponse"]["statusCode"]      = oSession.responseCode;
+            test.JSONObject["handleResponse"]["failLevel"]       = "ERROR";
+            test.JSONObject["handleResponse"]["failureMessage"]  = "Failed";
+
+            if(oSession.oRequest.headers.ExistsAndContains("Content-Type", "json")) {
+                test.JSONObject["requestType"] = "JSON_APPLICATION";
+                test.JSONObject["jsonPayload"]["baseNode"] = Payload(oSession);
+            } else if(oSession.oRequest.headers.ExistsAndContains("Content-Type", "urlencoded")) {
+                test.JSONObject["requestType"] = "URLENCODED_FORM_APPLICATION";
+        
+                if (!payload.Equals("")) {
+                    var params = payload.split("&");
+                    var index = 0;
+        
+                    for (var i in params) {
+                        var key      = params[i].split("=")[0];
+                        var value    = unescape(params[i].split("=")[1]);
+            
+                        if (!String.Concat(key).Equals("_dc")) {
+                            test.JSONObject["requestForm"].Add(new Hashtable());
+                            test.JSONObject["requestForm"][index].Add("key", key);
+                            test.JSONObject["requestForm"][index].Add("type", "PLAIN");
+                            test.JSONObject["requestForm"][index].Add("value", value);
+                            index++;
+                        }
+        
+                    }
+                }
+        
+            }
+    
+            if (!parameters.Equals("")) {
+                var params = parameters.split("&");
+                var index = 0;
+    
+                for (var i in params) {
+                    var key      = params[i].split("=")[0];
+                    var value    = unescape(params[i].split("=")[1]);
+
+                    if (!String.Concat(key).Equals("_dc")) {
+                        test.JSONObject["queryParams"].Add(new Hashtable());
+                        test.JSONObject["queryParams"][index].Add("key", key);
+                        test.JSONObject["queryParams"][index].Add("type", "PLAIN");
+                        test.JSONObject["queryParams"][index].Add("value", value);
+                        index++;
+                    }
+                }
+            }
+    
+            //var response = Fiddler.WebFormats.JSON.JsonDecode(oSession.GetResponseBodyAsString());
+    
+            test.JSONObject["handleResponse"]["responseChecks"].Add(new Hashtable());
+            test.JSONObject["handleResponse"]["responseChecks"][0].Add("sourceType", "JSON");
+            test.JSONObject["handleResponse"]["responseChecks"][0].Add("sourceKey", "$.success");
+            test.JSONObject["handleResponse"]["responseChecks"][0].Add("compareMethod", "EQUAL");
+            test.JSONObject["handleResponse"]["responseChecks"][0].Add("targetType", "PLAIN");
+            test.JSONObject["handleResponse"]["responseChecks"][0].Add("targetKey", readResponseValue(oSession, "success"));
+    
+            test.JSONObject["handleResponse"]["responseChecks"].Add(new Hashtable());
+            test.JSONObject["handleResponse"]["responseChecks"][1].Add("sourceType", "JSON");
+            test.JSONObject["handleResponse"]["responseChecks"][1].Add("sourceKey", "$.data");
+            test.JSONObject["handleResponse"]["responseChecks"][1].Add("compareMethod", "EQUAL");
+            test.JSONObject["handleResponse"]["responseChecks"][1].Add("targetType", "PLAIN");
+            test.JSONObject["handleResponse"]["responseChecks"][1].Add("targetKey", "");
+    
+            test.JSONObject["handleResponse"]["responseChecks"].Add(new Hashtable());
+            test.JSONObject["handleResponse"]["responseChecks"][2].Add("sourceType", "JSON");
+            test.JSONObject["handleResponse"]["responseChecks"][2].Add("sourceKey", "$.message");
+            test.JSONObject["handleResponse"]["responseChecks"][2].Add("compareMethod", "EQUAL");
+            test.JSONObject["handleResponse"]["responseChecks"][2].Add("targetType", "PLAIN");
+            test.JSONObject["handleResponse"]["responseChecks"][2].Add("targetKey", readResponseValue(oSession, "message"));
+    
+            test.JSONObject["handleResponse"]["responseChecks"].Add(new Hashtable());
+            test.JSONObject["handleResponse"]["responseChecks"][3].Add("sourceType", "JSON");
+            test.JSONObject["handleResponse"]["responseChecks"][3].Add("sourceKey", "$.records");
+            test.JSONObject["handleResponse"]["responseChecks"][3].Add("compareMethod", "EQUAL");
+            test.JSONObject["handleResponse"]["responseChecks"][3].Add("targetType", "PLAIN");
+            test.JSONObject["handleResponse"]["responseChecks"][3].Add("targetKey", "");
+    
+            test.JSONObject["handleResponse"]["responseChecks"].Add(new Hashtable());
+            test.JSONObject["handleResponse"]["responseChecks"][4].Add("sourceType", "JSON");
+            test.JSONObject["handleResponse"]["responseChecks"][4].Add("sourceKey", "$.total");
+            test.JSONObject["handleResponse"]["responseChecks"][4].Add("compareMethod", "EQUAL");
+            test.JSONObject["handleResponse"]["responseChecks"][4].Add("targetType", "PLAIN");
+            test.JSONObject["handleResponse"]["responseChecks"][4].Add("targetKey", readResponseValue(oSession, "total"));
+    
+    
+            FiddlerApplication.Log.LogString("JSON Test: " + Fiddler.WebFormats.JSON.JsonEncode(test.JSONObject));
+        }
+        return String.Empty;
+    }
+
+        
+    public static function responseReady(oSession: Session):boolean {
+        return oSession.responseCode != 0 && oSession.oResponse.headers.ExistsAndContains("Content-Type", "json");
+    }
+    
+    public static function readResponseValue(oSession: Session, value: String): Object {
+        var jsonString: String = oSession.GetResponseBodyAsString();
+        
+        if (jsonString.Contains(value)) {
+            var jsonObject = Fiddler.WebFormats.JSON.JsonDecode(jsonString).JSONObject[value];
+            if (jsonObject == null) return String.Empty;
+            
+            return jsonObject.ToString();
+        }
+        
+        return String.Empty;
+    }
+        
     public static RulesOption("Hide 304s")
     BindPref("fiddlerscript.rules.Hide304s")
     var m_Hide304s: boolean = false;
@@ -194,9 +378,7 @@ class Handlers
         //        !oSession.fullUrl.Contains("/resolve/service")
         //   ) oSession["ui-hide"] = "do not want to see";
         //if (oSession.fullUrl.Contains("/resolve/service/wiki/impex/download")) 
-        
-        
-        
+
         if ((null != gs_ReplaceToken) && (oSession.url.indexOf(gs_ReplaceToken)>-1)) {   // Case sensitive
             oSession.url = oSession.url.Replace(gs_ReplaceToken, gs_ReplaceTokenWith); 
         }
@@ -304,176 +486,40 @@ class Handlers
         if (m_Hide304s && oSession.responseCode == 304) {
             oSession["ui-hide"] = "true";
         }
+        
         if ((oSession.responseCode == 200)
             && oSession.fullUrl.Contains("/resolve/service/wiki/impex/download"))
         { 
             oSession.SaveResponseBody("C:\\Users\\ncanedo\\Desktop\\RunBooks\\" + oSession.SuggestedFilename);
         }
         
-        //var baseUrl:String = "/resolve/service";
-        //var filename:String = "";
-        //
-        //if (oSession.url.Contains(baseUrl) && !oSession.url.Contains("client/poll")) {
-        //    var JSONResponse = Fiddler.WebFormats.JSON.JsonDecode(oSession.GetResponseBodyAsString());
-        //    var success:String = String.Concat(JSONResponse.JSONObject["success"].ToString());
-        //    var startPosition:Number = oSession.host.Length + baseUrl.Length + 1;
-        //    var endPosition:Number = oSession.url.Length;
-        //    
-        //    if (success.Equals("True")) {
-        //        success = "Success";
-        //    } else {
-        //        success = "False";
-        //    }
-        //    
-        //    if (oSession.url.Contains("?")) {
-        //        endPosition = oSession.url.IndexOf("?");
-        //    }
-        //    
-        //    filename = oSession.url.Substring(startPosition, endPosition - startPosition).Replace("/", ".") + "-" + success + "_" + oSession.SuggestedFilename.Replace("_", "");
-        //    
-        //    oSession.SaveSession("C:\\Users\\ncanedo\\Desktop\\FiddlerSessions\\" + filename, false);
-        //}
-    }
         
-    public static BindUIColumn("Method")
-    function Method(oS: Session){
-        if (null != oS.oRequest) return oS.oRequest.headers.HTTPMethod; else return String.Empty; 
-    }
-        
-    public static BindUIColumn("Operation")
-    function Operation(oSession: Session){
-        var baseUrl:String = "/resolve/service";
-        
-        if (oSession.url.Contains(baseUrl)) {
-            var startPosition:Number = oSession.host.Length + baseUrl.Length;
-            var endPosition:Number = oSession.url.Length;
+        if (responseReady(oSession)) {
+            var baseUrl:String = "/resolve/service";
+            var filename:String = "";
             
-            if (oSession.url.Contains("?")) {
-                endPosition = oSession.url.IndexOf("?");
-            }
-            
-            return oSession.url.Substring(startPosition, endPosition - startPosition);
-        } else {
-            return oSession.url.Substring(oSession.host.Length);
-        }
-    }
-        
-    public static BindUIColumn("Payload")
-    function Payload(oSession: Session){
-        var requestBody:String = oSession.GetRequestBodyAsString();
-        return requestBody;
-    }
-        
-    public static BindUIColumn("Parameters")
-    function Parameters(oSession: Session){
-        var baseUrl:String = "/resolve/service";
-        
-        if (oSession.url.Contains(baseUrl)) {
-            var startPosition:Number = oSession.url.Length;
-            
-            if (oSession.url.Contains("?")) {
-                startPosition = oSession.url.IndexOf("?") + 1;
-            }
-            
-            return oSession.url.Substring(startPosition, oSession.url.Length - startPosition);
-        } else {
-            return oSession.url.Substring(oSession.host.Length);
-        }
-    }
-    
-    public static BindUIColumn("Success")
-    function Success(oSession: Session){
-        var JSONResponse = Fiddler.WebFormats.JSON.JsonDecode(oSession.GetResponseBodyAsString());
-        return String.Concat(JSONResponse.JSONObject["success"].ToString());
-    }
-        
-    public static BindUIColumn("Message")
-    function Message(oSession: Session){
-        var JSONResponse = Fiddler.WebFormats.JSON.JsonDecode(oSession.GetResponseBodyAsString());
-        return String.Concat(JSONResponse.JSONObject["message"].ToString());
-    }
-        
-    public static BindUIColumn("Total")
-    function Total(oSession: Session){
-        var JSONResponse = Fiddler.WebFormats.JSON.JsonDecode(oSession.GetResponseBodyAsString());
-        return String.Concat(JSONResponse.JSONObject["total"].ToString());
-    }
-        
-    static class Param
-    {
-        var key     : String;
-        var type    : String;
-        var value   : String; 
-    };
-        
-    public static BindUIColumn("Test")
-    function Test(oSession: Session){
-        var test = Fiddler.WebFormats.JSON.JsonDecode('{name: "", path: "", description: "", method: "", requestType: "", responseType: "", queryParams: [], requestForm: [], jsonPayload: {baseNode: ""}, handleResponse: {statusCode: "", failLevel: "", failureMessage: ""}}');
-        var payload:String      = Payload(oSession);
-        var parameters:String   = Parameters(oSession);
-        
-        
-        test.JSONObject["name"]           = Operation(oSession);
-        test.JSONObject["path"]           = Operation(oSession);
-        test.JSONObject["description"]    = Operation(oSession);
-        test.JSONObject["method"]         = Method(oSession);
-        test.JSONObject["responseType"]   = "JSON_APPLICATION";
-        
-        test.JSONObject["handleResponse"]["statusCode"]      = 200;
-        test.JSONObject["handleResponse"]["failLevel"]       = "ERROR";
-        test.JSONObject["handleResponse"]["failureMessage"]  = "Failed";
-
-        if(oSession.oRequest.headers.ExistsAndContains("Content-Type", "json")) {
-            test.JSONObject["requestType"] = "JSON_APPLICATION";
-            test.JSONObject["jsonPayload"]["baseNode"] = Payload(oSession);
-        }
-        if(oSession.oRequest.headers.ExistsAndContains("Content-Type", "urlencoded")) {
-            test.JSONObject["requestType"] = "URLENCODED_FORM_APPLICATION";
-            
-            
-            var params = payload.split("&");
-            var index = 0;
-            
-            for (var i in params) {
-                var key      = params[i].split("=")[0];
-                var value    = unescape(params[i].split("=")[1]);
+            if (oSession.url.Contains(baseUrl) && !oSession.url.Contains("client/poll")) {
+                var JSONResponse = Fiddler.WebFormats.JSON.JsonDecode(oSession.GetResponseBodyAsString());
+                var success:String = String.Concat(JSONResponse.JSONObject["success"].ToString());
+                var startPosition:Number = oSession.host.Length + baseUrl.Length + 1;
+                var endPosition:Number = oSession.url.Length;
                 
-                if (!String.Concat(key).Equals("_dc")) {
-                    test.JSONObject["requestForm"].Add(new Hashtable());
-                    test.JSONObject["requestForm"][index].Add("key", key);
-                    test.JSONObject["requestForm"][index].Add("type", "PLAIN");
-                    test.JSONObject["requestForm"][index].Add("value", value);
-                    index++;
+                if (success.Equals("True")) {
+                    success = "Success";
+                } else {
+                    success = "False";
                 }
-            
-            }
-            
-        } else {
-            test.JSONObject["requestType"] = "URLENCODED_FORM_APPLICATION";
-            
-            var params = parameters.split("&");
-            var index = 0;
-            
-            for (var i in params) {
-                var key      = params[i].split("=")[0];
-                var value    = unescape(params[i].split("=")[1]);
-
-                if (!String.Concat(key).Equals("_dc")) {
-                    test.JSONObject["queryParams"].Add(new Hashtable());
-                    test.JSONObject["queryParams"][index].Add("key", key);
-                    test.JSONObject["queryParams"][index].Add("type", "PLAIN");
-                    test.JSONObject["queryParams"][index].Add("value", value);
-                    index++;
+                
+                if (oSession.url.Contains("?")) {
+                    endPosition = oSession.url.IndexOf("?");
                 }
+                
+                filename = oSession.url.Substring(startPosition, endPosition - startPosition).Replace("/", ".") + "-" + success + "_" + oSession.SuggestedFilename.Replace("_", "");
+                
+                oSession.SaveSession("C:\\Users\\ncanedo\\Desktop\\FiddlerSessions\\" + filename, false);
             }
-            
         }
-        
-        FiddlerApplication.Log.LogString("JSON TEST: " + Fiddler.WebFormats.JSON.JsonEncode(test.JSONObject));
-        
-        return Fiddler.WebFormats.JSON.JsonEncode(test.JSONObject);
     }
-
 
 /*
     // This function executes just before Fiddler returns an error that it has 
@@ -492,152 +538,150 @@ class Handlers
 */
 
     // The Main() function runs everytime your FiddlerScript compiles
-        static function Main() {
-            var today: Date = new Date();
-            FiddlerObject.StatusText = " CustomRules.js was loaded at: " + today;
+    static function Main() {
+        var today: Date = new Date();
+        FiddlerObject.StatusText = " CustomRules.js was loaded at: " + today;
 
-            // Uncomment to add a "Server" column containing the response "Server" header, if present
-            // UI.lvSessions.AddBoundColumn("Server", 50, "@response.server");
+        // Uncomment to add a "Server" column containing the response "Server" header, if present
+        // UI.lvSessions.AddBoundColumn("Server", 50, "@response.server");
 
-            // Uncomment to add a global hotkey (Win+G) that invokes the ExecAction method below...
-            // UI.RegisterCustomHotkey(HotkeyModifiers.Windows, Keys.G, "screenshot"); 
+        // Uncomment to add a global hotkey (Win+G) that invokes the ExecAction method below...
+        // UI.RegisterCustomHotkey(HotkeyModifiers.Windows, Keys.G, "screenshot"); 
+    }
+
+    // These static variables are used for simple breakpointing & other QuickExec rules 
+    BindPref("fiddlerscript.ephemeral.bpRequestURI")
+    public static var bpRequestURI:String = null;
+
+    BindPref("fiddlerscript.ephemeral.bpResponseURI")
+    public static var bpResponseURI:String = null;
+
+    BindPref("fiddlerscript.ephemeral.bpMethod")
+    public static var bpMethod: String = null;
+
+    static var bpStatus:int = -1;
+    static var uiBoldURI: String = null;
+    static var gs_ReplaceToken: String = null;
+    static var gs_ReplaceTokenWith: String = null;
+    static var gs_OverridenHost: String = null;
+    static var gs_OverrideHostWith: String = null;
+
+    // The OnExecAction function is called by either the QuickExec box in the Fiddler window,
+    // or by the ExecAction.exe command line utility.
+    static function OnExecAction(sParams: String[]): Boolean {
+
+    FiddlerObject.StatusText = "ExecAction: " + sParams[0];
+
+    var sAction = sParams[0].toLowerCase();
+    switch (sAction) {
+    case "bold":
+        if (sParams.Length<2) {uiBoldURI=null; FiddlerObject.StatusText="Bolding cleared"; return false;}
+        uiBoldURI = sParams[1]; FiddlerObject.StatusText="Bolding requests for " + uiBoldURI;
+        return true;
+    case "bp":
+        FiddlerObject.alert("bpu = breakpoint request for uri\nbpm = breakpoint request method\nbps=breakpoint response status\nbpafter = breakpoint response for URI");
+        return true;
+    case "bps":
+        if (sParams.Length<2) {bpStatus=-1; FiddlerObject.StatusText="Response Status breakpoint cleared"; return false;}
+        bpStatus = parseInt(sParams[1]); FiddlerObject.StatusText="Response status breakpoint for " + sParams[1];
+        return true;
+    case "bpv":
+    case "bpm":
+        if (sParams.Length<2) {bpMethod=null; FiddlerObject.StatusText="Request Method breakpoint cleared"; return false;}
+        bpMethod = sParams[1].toUpperCase(); FiddlerObject.StatusText="Request Method breakpoint for " + bpMethod;
+        return true;
+    case "bpu":
+        if (sParams.Length<2) {bpRequestURI=null; FiddlerObject.StatusText="RequestURI breakpoint cleared"; return false;}
+        bpRequestURI = sParams[1]; 
+        FiddlerObject.StatusText="RequestURI breakpoint for "+sParams[1];
+        return true;
+    case "bpa":
+    case "bpafter":
+        if (sParams.Length<2) {bpResponseURI=null; FiddlerObject.StatusText="ResponseURI breakpoint cleared"; return false;}
+        bpResponseURI = sParams[1]; 
+        FiddlerObject.StatusText="ResponseURI breakpoint for "+sParams[1];
+        return true;
+    case "overridehost":
+        if (sParams.Length<3) {gs_OverridenHost=null; FiddlerObject.StatusText="Host Override cleared"; return false;}
+        gs_OverridenHost = sParams[1].toLowerCase();
+        gs_OverrideHostWith = sParams[2];
+        FiddlerObject.StatusText="Connecting to [" + gs_OverrideHostWith + "] for requests to [" + gs_OverridenHost + "]";
+        return true;
+    case "urlreplace":
+        if (sParams.Length<3) {gs_ReplaceToken=null; FiddlerObject.StatusText="URL Replacement cleared"; return false;}
+        gs_ReplaceToken = sParams[1];
+        gs_ReplaceTokenWith = sParams[2].Replace(" ", "%20");  // Simple helper
+        FiddlerObject.StatusText="Replacing [" + gs_ReplaceToken + "] in URIs with [" + gs_ReplaceTokenWith + "]";
+        return true;
+    case "allbut":
+    case "keeponly":
+        if (sParams.Length<2) { FiddlerObject.StatusText="Please specify Content-Type to retain during wipe."; return false;}
+        UI.actSelectSessionsWithResponseHeaderValue("Content-Type", sParams[1]);
+        UI.actRemoveUnselectedSessions();
+        UI.lvSessions.SelectedItems.Clear();
+        FiddlerObject.StatusText="Removed all but Content-Type: " + sParams[1];
+        return true;
+    case "stop":
+        UI.actDetachProxy();
+        return true;
+    case "start":
+        UI.actAttachProxy();
+        return true;
+    case "cls":
+    case "clear":
+        UI.actRemoveAllSessions();
+        return true;
+    case "g":
+    case "go":
+        UI.actResumeAllSessions();
+        return true;
+    case "goto":
+        if (sParams.Length != 2) return false;
+        Utilities.LaunchHyperlink("http://www.google.com/search?hl=en&btnI=I%27m+Feeling+Lucky&q=" + Utilities.UrlEncode(sParams[1]));
+        return true;
+    case "help":
+        Utilities.LaunchHyperlink("http://fiddler2.com/r/?quickexec");
+        return true;
+    case "hide":
+        UI.actMinimizeToTray();
+        return true;
+    case "log":
+        FiddlerApplication.Log.LogString((sParams.Length<2) ? "User couldn't think of anything to say..." : sParams[1]);
+        return true;
+    case "nuke":
+        UI.actClearWinINETCache();
+        UI.actClearWinINETCookies(); 
+        return true;
+    case "screenshot":
+        UI.actCaptureScreenshot(false);
+        return true;
+    case "show":
+        UI.actRestoreWindow();
+        return true;
+    case "tail":
+        if (sParams.Length<2) { FiddlerObject.StatusText="Please specify # of sessions to trim the session list to."; return false;}
+        UI.TrimSessionList(int.Parse(sParams[1]));
+        return true;
+    case "quit":
+        UI.actExit();
+        return true;
+    case "dump":
+        UI.actSelectAll();
+        UI.actSaveSessionsToZip(CONFIG.GetPath("Captures") + "dump.saz");
+        UI.actRemoveAllSessions();
+        FiddlerObject.StatusText = "Dumped all sessions to " + CONFIG.GetPath("Captures") + "dump.saz";
+        return true;
+
+    default:
+        if (sAction.StartsWith("http") || sAction.StartsWith("www.")) {
+            System.Diagnostics.Process.Start(sParams[0]);
+            return true;
         }
-
-        // These static variables are used for simple breakpointing & other QuickExec rules 
-        BindPref("fiddlerscript.ephemeral.bpRequestURI")
-        public static var bpRequestURI:String = null;
-
-        BindPref("fiddlerscript.ephemeral.bpResponseURI")
-        public static var bpResponseURI:String = null;
-
-        BindPref("fiddlerscript.ephemeral.bpMethod")
-        public static var bpMethod: String = null;
-
-        static var bpStatus:int = -1;
-        static var uiBoldURI: String = null;
-        static var gs_ReplaceToken: String = null;
-        static var gs_ReplaceTokenWith: String = null;
-        static var gs_OverridenHost: String = null;
-        static var gs_OverrideHostWith: String = null;
-
-        // The OnExecAction function is called by either the QuickExec box in the Fiddler window,
-        // or by the ExecAction.exe command line utility.
-        static function OnExecAction(sParams: String[]): Boolean {
-
-            FiddlerObject.StatusText = "ExecAction: " + sParams[0];
-
-            var sAction = sParams[0].toLowerCase();
-            switch (sAction) {
-                case "bold":
-                    if (sParams.Length<2) {uiBoldURI=null; FiddlerObject.StatusText="Bolding cleared"; return false;}
-                    uiBoldURI = sParams[1]; FiddlerObject.StatusText="Bolding requests for " + uiBoldURI;
-                    return true;
-                case "bp":
-                    FiddlerObject.alert("bpu = breakpoint request for uri\nbpm = breakpoint request method\nbps=breakpoint response status\nbpafter = breakpoint response for URI");
-                    return true;
-                case "bps":
-                    if (sParams.Length<2) {bpStatus=-1; FiddlerObject.StatusText="Response Status breakpoint cleared"; return false;}
-                    bpStatus = parseInt(sParams[1]); FiddlerObject.StatusText="Response status breakpoint for " + sParams[1];
-                    return true;
-                case "bpv":
-                case "bpm":
-                    if (sParams.Length<2) {bpMethod=null; FiddlerObject.StatusText="Request Method breakpoint cleared"; return false;}
-                    bpMethod = sParams[1].toUpperCase(); FiddlerObject.StatusText="Request Method breakpoint for " + bpMethod;
-                    return true;
-                case "bpu":
-                    if (sParams.Length<2) {bpRequestURI=null; FiddlerObject.StatusText="RequestURI breakpoint cleared"; return false;}
-                    bpRequestURI = sParams[1]; 
-                    FiddlerObject.StatusText="RequestURI breakpoint for "+sParams[1];
-                    return true;
-                case "bpa":
-                case "bpafter":
-                    if (sParams.Length<2) {bpResponseURI=null; FiddlerObject.StatusText="ResponseURI breakpoint cleared"; return false;}
-                    bpResponseURI = sParams[1]; 
-                    FiddlerObject.StatusText="ResponseURI breakpoint for "+sParams[1];
-                    return true;
-                case "overridehost":
-                    if (sParams.Length<3) {gs_OverridenHost=null; FiddlerObject.StatusText="Host Override cleared"; return false;}
-                    gs_OverridenHost = sParams[1].toLowerCase();
-                    gs_OverrideHostWith = sParams[2];
-                    FiddlerObject.StatusText="Connecting to [" + gs_OverrideHostWith + "] for requests to [" + gs_OverridenHost + "]";
-                    return true;
-                case "urlreplace":
-                    if (sParams.Length<3) {gs_ReplaceToken=null; FiddlerObject.StatusText="URL Replacement cleared"; return false;}
-                    gs_ReplaceToken = sParams[1];
-                    gs_ReplaceTokenWith = sParams[2].Replace(" ", "%20");  // Simple helper
-                    FiddlerObject.StatusText="Replacing [" + gs_ReplaceToken + "] in URIs with [" + gs_ReplaceTokenWith + "]";
-                    return true;
-                case "allbut":
-                case "keeponly":
-                    if (sParams.Length<2) { FiddlerObject.StatusText="Please specify Content-Type to retain during wipe."; return false;}
-                    UI.actSelectSessionsWithResponseHeaderValue("Content-Type", sParams[1]);
-                    UI.actRemoveUnselectedSessions();
-                    UI.lvSessions.SelectedItems.Clear();
-                    FiddlerObject.StatusText="Removed all but Content-Type: " + sParams[1];
-                    return true;
-                case "stop":
-                    UI.actDetachProxy();
-                    return true;
-                case "start":
-                    UI.actAttachProxy();
-                    return true;
-                case "cls":
-                case "clear":
-                    UI.actRemoveAllSessions();
-                    return true;
-                case "g":
-                case "go":
-                    UI.actResumeAllSessions();
-                    return true;
-                case "goto":
-                    if (sParams.Length != 2) return false;
-                    Utilities.LaunchHyperlink("http://www.google.com/search?hl=en&btnI=I%27m+Feeling+Lucky&q=" + Utilities.UrlEncode(sParams[1]));
-                    return true;
-                case "help":
-                    Utilities.LaunchHyperlink("http://fiddler2.com/r/?quickexec");
-                    return true;
-                case "hide":
-                    UI.actMinimizeToTray();
-                    return true;
-                case "log":
-                    FiddlerApplication.Log.LogString((sParams.Length<2) ? "User couldn't think of anything to say..." : sParams[1]);
-                    return true;
-                case "nuke":
-                    UI.actClearWinINETCache();
-                    UI.actClearWinINETCookies(); 
-                    return true;
-                case "screenshot":
-                    UI.actCaptureScreenshot(false);
-                    return true;
-                case "show":
-                    UI.actRestoreWindow();
-                    return true;
-                case "tail":
-                    if (sParams.Length<2) { FiddlerObject.StatusText="Please specify # of sessions to trim the session list to."; return false;}
-                    UI.TrimSessionList(int.Parse(sParams[1]));
-                    return true;
-                case "quit":
-                    UI.actExit();
-                    return true;
-                case "dump":
-                    UI.actSelectAll();
-                    UI.actSaveSessionsToZip(CONFIG.GetPath("Captures") + "dump.saz");
-                    UI.actRemoveAllSessions();
-                    FiddlerObject.StatusText = "Dumped all sessions to " + CONFIG.GetPath("Captures") + "dump.saz";
-                    return true;
-
-                default:
-                    if (sAction.StartsWith("http") || sAction.StartsWith("www.")) {
-                        System.Diagnostics.Process.Start(sParams[0]);
-                        return true;
-                    }
-                    else
-                    {
-                        FiddlerObject.StatusText = "Requested ExecAction: '" + sAction + "' not found. Type HELP to learn more.";
-                        return false;
-                    }
-            }
+        else
+        {
+            FiddlerObject.StatusText = "Requested ExecAction: '" + sAction + "' not found. Type HELP to learn more.";
+            return false;
         }
-        }
-
-
+    }
+    }
+}
