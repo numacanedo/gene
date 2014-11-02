@@ -310,29 +310,29 @@ class Handlers
             oSession.SaveResponseBody("C:\\Users\\ncanedo\\Desktop\\RunBooks\\" + oSession.SuggestedFilename);
         }
         
-        var baseUrl:String = "/resolve/service";
-        var filename:String = "";
-        
-        if (oSession.url.Contains(baseUrl) && !oSession.url.Contains("client/poll")) {
-            var JSONResponse = Fiddler.WebFormats.JSON.JsonDecode(oSession.GetResponseBodyAsString());
-            var success:String = String.Concat(JSONResponse.JSONObject["success"].ToString());
-            var startPosition:Number = oSession.host.Length + baseUrl.Length + 1;
-            var endPosition:Number = oSession.url.Length;
-            
-            if (success.Equals("True")) {
-                success = "Success";
-            } else {
-                success = "False";
-            }
-            
-            if (oSession.url.Contains("?")) {
-                endPosition = oSession.url.IndexOf("?");
-            }
-            
-            filename = oSession.url.Substring(startPosition, endPosition - startPosition).Replace("/", ".") + "-" + success + "_" + oSession.SuggestedFilename.Replace("_", "");
-            
-            oSession.SaveSession("C:\\Users\\ncanedo\\Desktop\\FiddlerSessions\\" + filename, false);
-        }
+        //var baseUrl:String = "/resolve/service";
+        //var filename:String = "";
+        //
+        //if (oSession.url.Contains(baseUrl) && !oSession.url.Contains("client/poll")) {
+        //    var JSONResponse = Fiddler.WebFormats.JSON.JsonDecode(oSession.GetResponseBodyAsString());
+        //    var success:String = String.Concat(JSONResponse.JSONObject["success"].ToString());
+        //    var startPosition:Number = oSession.host.Length + baseUrl.Length + 1;
+        //    var endPosition:Number = oSession.url.Length;
+        //    
+        //    if (success.Equals("True")) {
+        //        success = "Success";
+        //    } else {
+        //        success = "False";
+        //    }
+        //    
+        //    if (oSession.url.Contains("?")) {
+        //        endPosition = oSession.url.IndexOf("?");
+        //    }
+        //    
+        //    filename = oSession.url.Substring(startPosition, endPosition - startPosition).Replace("/", ".") + "-" + success + "_" + oSession.SuggestedFilename.Replace("_", "");
+        //    
+        //    oSession.SaveSession("C:\\Users\\ncanedo\\Desktop\\FiddlerSessions\\" + filename, false);
+        //}
     }
         
     public static BindUIColumn("Method")
@@ -409,7 +409,8 @@ class Handlers
     public static BindUIColumn("Test")
     function Test(oSession: Session){
         var test = Fiddler.WebFormats.JSON.JsonDecode('{name: "", path: "", description: "", method: "", requestType: "", responseType: "", queryParams: [], requestForm: [], jsonPayload: {baseNode: ""}, handleResponse: {statusCode: "", failLevel: "", failureMessage: ""}}');
-        
+        var payload:String      = Payload(oSession);
+        var parameters:String   = Parameters(oSession);
         
         
         test.JSONObject["name"]           = Operation(oSession);
@@ -425,33 +426,50 @@ class Handlers
         if(oSession.oRequest.headers.ExistsAndContains("Content-Type", "json")) {
             test.JSONObject["requestType"] = "JSON_APPLICATION";
             test.JSONObject["jsonPayload"]["baseNode"] = Payload(oSession);
-        } else if(oSession.oRequest.headers.ExistsAndContains("Content-Type", "urlencoded")) {
+        }
+        if(oSession.oRequest.headers.ExistsAndContains("Content-Type", "urlencoded")) {
             test.JSONObject["requestType"] = "URLENCODED_FORM_APPLICATION";
             
-            var params = Payload(oSession).split("&");
+            
+            var params = payload.split("&");
+            var index = 0;
             
             for (var i in params) {
-                test.JSONObject["requestForm"].Add(new Hashtable());
+                var key      = params[i].split("=")[0];
+                var value    = unescape(params[i].split("=")[1]);
                 
-                test.JSONObject["requestForm"][i].Add("key", params[i].split("=")[0]);
-                test.JSONObject["requestForm"][i].Add("type", "PLAIN");
-                test.JSONObject["requestForm"][i].Add("value", unescape(params[i].split("=")[1]));
+                if (!String.Concat(key).Equals("_dc")) {
+                    test.JSONObject["requestForm"].Add(new Hashtable());
+                    test.JSONObject["requestForm"][index].Add("key", key);
+                    test.JSONObject["requestForm"][index].Add("type", "PLAIN");
+                    test.JSONObject["requestForm"][index].Add("value", value);
+                    index++;
+                }
+            
             }
             
         } else {
             test.JSONObject["requestType"] = "URLENCODED_FORM_APPLICATION";
             
-            var params = Parameters(oSession).split("&");
+            var params = parameters.split("&");
+            var index = 0;
             
             for (var i in params) {
-                test.JSONObject["queryParams"].Add(new Hashtable());
-                
-                test.JSONObject["queryParams"][i].Add("key", params[i].split("=")[0]);
-                test.JSONObject["queryParams"][i].Add("type", "PLAIN");
-                test.JSONObject["queryParams"][i].Add("value", unescape(params[i].split("=")[1]));
+                var key      = params[i].split("=")[0];
+                var value    = unescape(params[i].split("=")[1]);
+
+                if (!String.Concat(key).Equals("_dc")) {
+                    test.JSONObject["queryParams"].Add(new Hashtable());
+                    test.JSONObject["queryParams"][index].Add("key", key);
+                    test.JSONObject["queryParams"][index].Add("type", "PLAIN");
+                    test.JSONObject["queryParams"][index].Add("value", value);
+                    index++;
+                }
             }
             
         }
+        
+        FiddlerApplication.Log.LogString("JSON TEST: " + Fiddler.WebFormats.JSON.JsonEncode(test.JSONObject));
         
         return Fiddler.WebFormats.JSON.JsonEncode(test.JSONObject);
     }
@@ -621,28 +639,5 @@ class Handlers
             }
         }
         }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
