@@ -32,27 +32,27 @@ class Handlers
     // The following snippet demonstrates a custom-bound column for the Web Sessions list.
     // See http://fiddler2.com/r/?fiddlercolumns for more info
     /*
-      public static BindUIColumn("Method", 60)
-      function FillMethodColumn(oS: Session): String {
-         return oS.RequestMethod;
-      }
+    public static BindUIColumn("Method", 60)
+    function FillMethodColumn(oS: Session): String {
+    return oS.RequestMethod;
+    }
     */
 
     // The following snippet demonstrates how to create a custom tab that shows simple text
     /*
-       public BindUITab("Flags")
-       static function FlagsReport(arrSess: Session[]):String {
-        var oSB: System.Text.StringBuilder = new System.Text.StringBuilder();
-        for (var i:int = 0; i<arrSess.Length; i++)
-        {
-            oSB.AppendLine("SESSION FLAGS");
-            oSB.AppendFormat("{0}: {1}\n", arrSess[i].id, arrSess[i].fullUrl);
-            for(var sFlag in arrSess[i].oFlags)
-            {
-                oSB.AppendFormat("\t{0}:\t\t{1}\n", sFlag.Key, sFlag.Value);
-            }
-        }
-        return oSB.ToString();
+    public BindUITab("Flags")
+    static function FlagsReport(arrSess: Session[]):String {
+    var oSB: System.Text.StringBuilder = new System.Text.StringBuilder();
+    for (var i:int = 0; i<arrSess.Length; i++)
+    {
+    oSB.AppendLine("SESSION FLAGS");
+    oSB.AppendFormat("{0}: {1}\n", arrSess[i].id, arrSess[i].fullUrl);
+    for(var sFlag in arrSess[i].oFlags)
+    {
+    oSB.AppendFormat("\t{0}:\t\t{1}\n", sFlag.Key, sFlag.Value);
+    }
+    }
+    return oSB.ToString();
     }
     */
 
@@ -63,37 +63,97 @@ class Handlers
     QuickLinkItem("FiddlerCore", "http://fiddler2.com/fiddlercore")
     public static function DoLinksMenu(sText: String, sAction: String)
     {
-        Utilities.LaunchHyperlink(sAction);
+    Utilities.LaunchHyperlink(sAction);
     }
     */
         
+    public BindUITab("Json Test")
+    static function JsonTest(oSession: Session[]):String {
+        var index: Number   = 0;
+        var testCase: Object = Fiddler.WebFormats.JSON.JsonDecode('{jsonFileName: "", baseURL: "", username: "", password: "", tests: []}');
+        testCase.JSONObject["jsonFileName"] = "Fiddler Generated Test";
+        testCase.JSONObject["baseURL"]      = "http://fiddler:8080/resolve/service";
+        testCase.JSONObject["username"]     = "admin";
+        testCase.JSONObject["password"]     = "resolve";
+        
+
+        for (var i:int = 0; i<oSession.Length; i++) {
+            var test: String = JsonTest(oSession[i]);
+            
+            if (!test.Equals(String.Empty)) {
+                var testObject: Object = Fiddler.WebFormats.JSON.JsonDecode(test);
+                testCase.JSONObject["tests"].Add(testObject.JSONObject);
+                index++;
+            }
+        }
+        
+        if (index > 0) return Fiddler.WebFormats.JSON.JsonEncode(testCase.JSONObject);
+        
+        return String.Empty;
+    }
+        
+    public BindUITab("Parameters String")
+    static function ValidateResponseData(oSession: Session[]):String {
+        var oSB: System.Text.StringBuilder = new System.Text.StringBuilder();
+		
+        for (var i:int = 0; i<oSession.Length; i++) {
+ 
+            
+  
+            var dataObject: Object = Fiddler.WebFormats.JSON.JsonDecode(oSession[i].GetResponseBodyAsString()).JSONObject["data"];
+            
+            
+            if (dataObject != null) {
+                for (var dataAttribute:DictionaryEntry in dataObject) {
+                    var key: String     = dataAttribute.Key;
+                    var value: String   = dataAttribute.Value;
+                    if (value == null || value.ToUpper().Equals("UNDEFINED")) {
+                        value = String.Empty;
+                    }
+                    
+                    oSB.AppendLine(key + ":" + value);
+                }
+ 
+            }
+
+
+        }
+        
+        if (oSession.Length > 0) return oSB.ToString();
+        
+        return String.Empty;
+    }
+            
     public static BindUIColumn("Method")
     function Method(oSession: Session): String{
-        return oSession.oRequest.headers.HTTPMethod;
+        if (responseReady(oSession)) return oSession.oRequest.headers.HTTPMethod;
+        return String.Empty;
     }
         
     public static BindUIColumn("Operation")
     function Operation(oSession: Session): String{
-        var baseUrl: String = "/resolve/service";
+        if (responseReady(oSession)) {
+            var baseUrl: String = "/resolve/service";
         
-        if (oSession.url.Contains(baseUrl)) {
-            var startPosition:Number = oSession.host.Length + baseUrl.Length;
-            var endPosition:Number = oSession.url.Length;
+            if (oSession.url.Contains(baseUrl)) {
+                var startPosition:Number = oSession.host.Length + baseUrl.Length;
+                var endPosition:Number = oSession.url.Length;
             
-            if (oSession.url.Contains("?")) {
-                endPosition = oSession.url.IndexOf("?");
+                if (oSession.url.Contains("?")) {
+                    endPosition = oSession.url.IndexOf("?");
+                }
+            
+                return oSession.url.Substring(startPosition, endPosition - startPosition);
+            } else {
+                return oSession.url.Substring(oSession.host.Length);
             }
-            
-            return oSession.url.Substring(startPosition, endPosition - startPosition);
-        } else {
-            return oSession.url.Substring(oSession.host.Length);
         }
     }
         
     public static BindUIColumn("Payload")
     function Payload(oSession: Session): String{
-        var requestBody:String = oSession.GetRequestBodyAsString();
-        return requestBody;
+        if (responseReady(oSession)) return oSession.GetRequestBodyAsString();
+        return String.Empty;
     }
     
     public static BindUIColumn("Success")
@@ -108,44 +168,55 @@ class Handlers
         return String.Empty;
     }
         
-    public static BindUIColumn("Parameters")
-    function Parameters(oSession: Session): String{
-        var baseUrl: String = "/resolve/service";
-        
-        if (oSession.url.Contains(baseUrl)) {
-            var startPosition:Number = oSession.url.Length;
-            
-            if (oSession.url.Contains("?")) {
-                startPosition = oSession.url.IndexOf("?") + 1;
-            }
-            
-            var params = oSession.url.Substring(startPosition, oSession.url.Length - startPosition).split("&");
-            var index = 0;
-            var parameters: String = "";
-    
-            for (var i in params) {
-                var key      = params[i].split("=")[0];
-                var value    = unescape(params[i].split("=")[1]);
-
-                if (!String.Concat(key).Equals("_dc")) {
-                    parameters = parameters + key + "=" + value + " ";
-                }
-            }
-            
-            return parameters;
-        } else {
-            return unescape("[" + oSession.url.Substring(oSession.host.Length).Replace("&", "] [") + "]");
-        }
+    public static BindUIColumn("Total")
+    function Total(oSession: Session): String{
+        if (responseReady(oSession)) return readResponseValue(oSession, "total");
+        return String.Empty;
     }
         
+    public static BindUIColumn("Parameters")
+    function Parameters(oSession: Session): String{
+
+        var params: Array       = ParametersString(oSession).split("&");
+        var parameters: String  = "";
+
+        for (var i: Number in params) {
+            var key: String      = params[i].split("=")[0];
+            var value: String    = unescape(params[i].split("=")[1]);
+
+            if (key != null && !key.Equals(String.Empty) && !key.Equals("_dc")) {
+                parameters = parameters + key + "=" + value + " ";
+            }
+        }
+        
+        return parameters;
+    }
+    
     public static BindUIColumn("Test")
     function Test(oSession: Session): String{
+        var test: String = JsonTest(oSession);
+        
+        if (!test.Equals(String.Empty)) {
+        
+            FiddlerApplication.Log.LogString("[JSON Test] " + JsonTest(oSession));
+        }
+        
+        return String.Empty;
+    }
+        
+    public static function JsonTest(oSession: Session): String {
         if (responseReady(oSession) && oSession.fullUrl.Contains("/resolve/service") && !oSession.fullUrl.Contains("/client/poll")) {
 
-            var test = Fiddler.WebFormats.JSON.JsonDecode('{name: "", path: "", description: "", method: "", requestType: "", responseType: "", queryParams: [], requestForm: [], jsonPayload: {baseNode: ""}, handleResponse: {statusCode: "", failLevel: "", failureMessage: "", responseChecks: []}}');
-            var payload: String      = Payload(oSession);
-            var parameters: String   = Parameters(oSession);
-    
+            var test: Object        = Fiddler.WebFormats.JSON.JsonDecode('{name: "", path: "", description: "", method: "", requestType: "", responseType: "", queryParams: [], requestForm: [], jsonPayload: {baseNode: ""}, handleResponse: {statusCode: "", failLevel: "", failureMessage: "", responseChecks: []}, testOps: []}');
+            var paramObject: Object = Fiddler.WebFormats.JSON.JsonDecode('{key: "", type: "", value: ""}');
+            var tesOpObject: Object = Fiddler.WebFormats.JSON.JsonDecode('{method: "", sourceType: "", sourceKey: "", targetKey: ""}');
+            var payload: String     = Payload(oSession);
+            var parameters: String  = ParametersString(oSession);
+            
+            var params: Array;
+            var i: Number;;
+            var key: String;
+            var value: String;
     
             test.JSONObject["name"]           = Operation(oSession);
             test.JSONObject["path"]           = Operation(oSession);
@@ -164,20 +235,20 @@ class Handlers
             } else if(oSession.oRequest.headers.ExistsAndContains("Content-Type", "urlencoded")) {
                 test.JSONObject["requestType"] = "URLENCODED_FORM_APPLICATION";
         
-                if (!payload.Equals("")) {
-                    var params = payload.split("&");
-                    var index = 0;
+                if (payload != null && !payload.Equals(String.Empty)) {
+                    params  = payload.split("&");
         
-                    for (var i in params) {
-                        var key      = params[i].split("=")[0];
-                        var value    = unescape(params[i].split("=")[1]);
+                    for (i in params) {
+                        key      = params[i].split("=")[0];
+                        value    = unescape(params[i].split("=")[1]);
             
-                        if (!String.Concat(key).Equals("_dc")) {
-                            test.JSONObject["requestForm"].Add(new Hashtable());
-                            test.JSONObject["requestForm"][index].Add("key", key);
-                            test.JSONObject["requestForm"][index].Add("type", "PLAIN");
-                            test.JSONObject["requestForm"][index].Add("value", value);
-                            index++;
+                        if (key != null && !key.Equals(String.Empty) && !key.Equals("_dc")) {
+                            paramObject = Fiddler.WebFormats.JSON.JsonDecode('{key: "", type: "", value: ""}');
+                            paramObject.JSONObject["key"]   = key;
+                            paramObject.JSONObject["type"]  = "PLAIN";
+                            paramObject.JSONObject["value"] = value;
+                            
+                            test.JSONObject["requestForm"].Add(paramObject.JSONObject);
                         }
         
                     }
@@ -185,25 +256,23 @@ class Handlers
         
             }
     
-            if (!parameters.Equals("")) {
-                var params = parameters.split("&");
-                var index = 0;
+            if (parameters != null && !parameters.Equals(String.Empty)) {
+                params  = parameters.split("&");
     
-                for (var i in params) {
-                    var key      = params[i].split("=")[0];
-                    var value    = unescape(params[i].split("=")[1]);
+                for (i in params) {
+                    key      = params[i].split("=")[0];
+                    value    = unescape(params[i].split("=")[1]);
 
-                    if (!String.Concat(key).Equals("_dc")) {
-                        test.JSONObject["queryParams"].Add(new Hashtable());
-                        test.JSONObject["queryParams"][index].Add("key", key);
-                        test.JSONObject["queryParams"][index].Add("type", "PLAIN");
-                        test.JSONObject["queryParams"][index].Add("value", value);
-                        index++;
+                    if (key != null && !key.Equals(String.Empty) && !key.Equals("_dc")) {
+                        paramObject = Fiddler.WebFormats.JSON.JsonDecode('{key: "", type: "", value: ""}');
+                        paramObject.JSONObject["key"]   = key;
+                        paramObject.JSONObject["type"]  = "PLAIN";
+                        paramObject.JSONObject["value"] = value;
+                            
+                        test.JSONObject["queryParams"].Add(paramObject.JSONObject);
                     }
                 }
             }
-    
-            //var response = Fiddler.WebFormats.JSON.JsonDecode(oSession.GetResponseBodyAsString());
     
             test.JSONObject["handleResponse"]["responseChecks"].Add(new Hashtable());
             test.JSONObject["handleResponse"]["responseChecks"][0].Add("sourceType", "JSON");
@@ -212,12 +281,22 @@ class Handlers
             test.JSONObject["handleResponse"]["responseChecks"][0].Add("targetType", "PLAIN");
             test.JSONObject["handleResponse"]["responseChecks"][0].Add("targetKey", readResponseValue(oSession, "success"));
     
-            test.JSONObject["handleResponse"]["responseChecks"].Add(new Hashtable());
-            test.JSONObject["handleResponse"]["responseChecks"][1].Add("sourceType", "JSON");
-            test.JSONObject["handleResponse"]["responseChecks"][1].Add("sourceKey", "$.data");
-            test.JSONObject["handleResponse"]["responseChecks"][1].Add("compareMethod", "EQUAL");
-            test.JSONObject["handleResponse"]["responseChecks"][1].Add("targetType", "PLAIN");
-            test.JSONObject["handleResponse"]["responseChecks"][1].Add("targetKey", "");
+            if (readResponseValue(oSession, "success").Equals(String.Empty)) {
+            
+                test.JSONObject["handleResponse"]["responseChecks"].Add(new Hashtable());
+                test.JSONObject["handleResponse"]["responseChecks"][1].Add("sourceType", "JSON");
+                test.JSONObject["handleResponse"]["responseChecks"][1].Add("sourceKey", "$.data");
+                test.JSONObject["handleResponse"]["responseChecks"][1].Add("compareMethod", "EQUAL");
+                test.JSONObject["handleResponse"]["responseChecks"][1].Add("targetType", "PLAIN");
+                test.JSONObject["handleResponse"]["responseChecks"][1].Add("targetKey", "");
+            } else {
+                test.JSONObject["handleResponse"]["responseChecks"].Add(new Hashtable());
+                test.JSONObject["handleResponse"]["responseChecks"][1].Add("sourceType", "JSON");
+                test.JSONObject["handleResponse"]["responseChecks"][1].Add("sourceKey", "$.data");
+                test.JSONObject["handleResponse"]["responseChecks"][1].Add("compareMethod", "NOTEMPTY");
+                test.JSONObject["handleResponse"]["responseChecks"][1].Add("targetType", "PLAIN");
+                test.JSONObject["handleResponse"]["responseChecks"][1].Add("targetKey", "");
+            }
     
             test.JSONObject["handleResponse"]["responseChecks"].Add(new Hashtable());
             test.JSONObject["handleResponse"]["responseChecks"][2].Add("sourceType", "JSON");
@@ -226,12 +305,21 @@ class Handlers
             test.JSONObject["handleResponse"]["responseChecks"][2].Add("targetType", "PLAIN");
             test.JSONObject["handleResponse"]["responseChecks"][2].Add("targetKey", readResponseValue(oSession, "message"));
     
-            test.JSONObject["handleResponse"]["responseChecks"].Add(new Hashtable());
-            test.JSONObject["handleResponse"]["responseChecks"][3].Add("sourceType", "JSON");
-            test.JSONObject["handleResponse"]["responseChecks"][3].Add("sourceKey", "$.records");
-            test.JSONObject["handleResponse"]["responseChecks"][3].Add("compareMethod", "EQUAL");
-            test.JSONObject["handleResponse"]["responseChecks"][3].Add("targetType", "PLAIN");
-            test.JSONObject["handleResponse"]["responseChecks"][3].Add("targetKey", "");
+            if (readResponseValue(oSession, "records").Equals(String.Empty)) {
+                test.JSONObject["handleResponse"]["responseChecks"].Add(new Hashtable());
+                test.JSONObject["handleResponse"]["responseChecks"][3].Add("sourceType", "JSON");
+                test.JSONObject["handleResponse"]["responseChecks"][3].Add("sourceKey", "$.records");
+                test.JSONObject["handleResponse"]["responseChecks"][3].Add("compareMethod", "EQUAL");
+                test.JSONObject["handleResponse"]["responseChecks"][3].Add("targetType", "PLAIN");
+                test.JSONObject["handleResponse"]["responseChecks"][3].Add("targetKey", "");
+            } else {
+                test.JSONObject["handleResponse"]["responseChecks"].Add(new Hashtable());
+                test.JSONObject["handleResponse"]["responseChecks"][3].Add("sourceType", "JSON");
+                test.JSONObject["handleResponse"]["responseChecks"][3].Add("sourceKey", "$.records");
+                test.JSONObject["handleResponse"]["responseChecks"][3].Add("compareMethod", "SIZEEQUAL");
+                test.JSONObject["handleResponse"]["responseChecks"][3].Add("targetType", "PLAIN");
+                test.JSONObject["handleResponse"]["responseChecks"][3].Add("targetKey", readResponseValue(oSession, "total"));
+            }
     
             test.JSONObject["handleResponse"]["responseChecks"].Add(new Hashtable());
             test.JSONObject["handleResponse"]["responseChecks"][4].Add("sourceType", "JSON");
@@ -239,23 +327,62 @@ class Handlers
             test.JSONObject["handleResponse"]["responseChecks"][4].Add("compareMethod", "EQUAL");
             test.JSONObject["handleResponse"]["responseChecks"][4].Add("targetType", "PLAIN");
             test.JSONObject["handleResponse"]["responseChecks"][4].Add("targetKey", readResponseValue(oSession, "total"));
-    
-    
-            FiddlerApplication.Log.LogString("JSON Test: " + Fiddler.WebFormats.JSON.JsonEncode(test.JSONObject));
+            
+            
+            var dataObject: Object = Fiddler.WebFormats.JSON.JsonDecode(oSession.GetResponseBodyAsString()).JSONObject["data"];
+            
+            
+            if (dataObject != null) {
+                for (var dataAttribute:DictionaryEntry in dataObject) {
+                    var dataAttributeKey: String     = dataAttribute.Key;
+                    var dataAttributeValue: String   = dataAttribute.Value;
+                    if (dataAttributeValue == null || dataAttributeValue.ToUpper().Equals("UNDEFINED")) {
+                        dataAttributeValue = String.Empty;
+                    }
+                    
+                    tesOpObject = Fiddler.WebFormats.JSON.JsonDecode('{method: "", sourceType: "", sourceKey: "", targetKey: ""}');
+                    tesOpObject.JSONObject["method"]        = "ASSIGN";
+                    tesOpObject.JSONObject["sourceType"]    = "JSON";
+                    tesOpObject.JSONObject["sourceKey"]     = "$." + dataAttributeKey;
+                    tesOpObject.JSONObject["targetKey"]     = dataAttributeKey;
+                    
+                    test.JSONObject["testOps"].Add(tesOpObject.JSONObject);
+                }
+ 
+            }
+            
+            return Fiddler.WebFormats.JSON.JsonEncode(test.JSONObject);
         }
+        
         return String.Empty;
+    }
+        
+    public static function ParametersString(oSession: Session): String {
+        var baseUrl: String = "/resolve/service";
+        
+        if (oSession.url.Contains(baseUrl)) {
+            var startPosition: Number = oSession.url.Length;
+            
+            if (oSession.url.Contains("?")) {
+                startPosition = oSession.url.IndexOf("?") + 1;
+            }
+            
+            return oSession.url.Substring(startPosition, oSession.url.Length - startPosition);
+        }
+        
+        return unescape(oSession.url.Substring(oSession.host.Length));;
     }
 
         
-    public static function responseReady(oSession: Session):boolean {
+    public static function responseReady(oSession: Session): boolean {
         return oSession.responseCode != 0 && oSession.oResponse.headers.ExistsAndContains("Content-Type", "json");
     }
     
-    public static function readResponseValue(oSession: Session, value: String): Object {
+    public static function readResponseValue(oSession: Session, value: String): String {
         var jsonString: String = oSession.GetResponseBodyAsString();
         
         if (jsonString.Contains(value)) {
-            var jsonObject = Fiddler.WebFormats.JSON.JsonDecode(jsonString).JSONObject[value];
+            var jsonObject: Object = Fiddler.WebFormats.JSON.JsonDecode(jsonString).JSONObject[value];
             if (jsonObject == null) return String.Empty;
             
             return jsonObject.ToString();
@@ -460,10 +587,10 @@ class Handlers
     // for one useful thing you can do with this handler.
     //
     // Note: oSession.requestBodyBytes is not available within this function!
-/*
+    /*
     static function OnPeekAtRequestHeaders(oSession: Session) {
     }
-*/
+    */
 
     //
     // If a given session has response streaming enabled, then the OnBeforeResponse function 
@@ -500,36 +627,39 @@ class Handlers
             oSession["ui-hide"] = "true";
         }
         
-        if ((oSession.responseCode == 200)
-            && oSession.fullUrl.Contains("/resolve/service/wiki/impex/download"))
-        { 
+        if (responseReady(oSession) && (oSession.responseCode == 200) && oSession.fullUrl.Contains("/resolve/service/wiki/impex/download")) { 
             oSession.SaveResponseBody("C:\\Users\\ncanedo\\Desktop\\RunBooks\\" + oSession.SuggestedFilename);
         }
         
         
-        if (responseReady(oSession)) {
-            var baseUrl:String = "/resolve/service";
-            var filename:String = "";
+        if (false) {
+            if (responseReady(oSession)) {
+                var baseUrl:String  = "/resolve/service";
+                var filename:String = "";
             
-            if (oSession.url.Contains(baseUrl) && !oSession.url.Contains("client/poll")) {
-                var JSONResponse = Fiddler.WebFormats.JSON.JsonDecode(oSession.GetResponseBodyAsString());
-                var success:String = String.Concat(JSONResponse.JSONObject["success"].ToString());
-                var startPosition:Number = oSession.host.Length + baseUrl.Length + 1;
-                var endPosition:Number = oSession.url.Length;
+                if (oSession.url.Contains(baseUrl) && !oSession.url.Contains("/client/poll")) {
+                    var JSONResponse: Object    = Fiddler.WebFormats.JSON.JsonDecode(oSession.GetResponseBodyAsString());
+                    var success:String          = JSONResponse.JSONObject["success"].ToString();
+                    var startPosition:Number    = oSession.host.Length + baseUrl.Length + 1;
+                    var endPosition:Number      = oSession.url.Length;
                 
-                if (success.Equals("True")) {
-                    success = "Success";
-                } else {
-                    success = "False";
+                    if (success.Equals("True")) {
+                        success = "Success";
+                    } else {
+                        success = "False";
+                    }
+                
+                    if (oSession.url.Contains("?")) {
+                        endPosition = oSession.url.IndexOf("?");
+                    }
+                    
+                    if (success.Equals("False")) {
+                
+                        filename = oSession.url.Substring(startPosition, endPosition - startPosition).Replace("/", ".") + "-" + success + "_" + oSession.SuggestedFilename.Replace("_", "");
+                
+                        oSession.SaveSession("C:\\Users\\ncanedo\\Desktop\\FiddlerSessions\\" + filename, false);
+                    }
                 }
-                
-                if (oSession.url.Contains("?")) {
-                    endPosition = oSession.url.IndexOf("?");
-                }
-                
-                filename = oSession.url.Substring(startPosition, endPosition - startPosition).Replace("/", ".") + "-" + success + "_" + oSession.SuggestedFilename.Replace("_", "");
-                
-                oSession.SaveSession("C:\\Users\\ncanedo\\Desktop\\FiddlerSessions\\" + filename, false);
             }
         }
     }
@@ -583,118 +713,122 @@ class Handlers
     // or by the ExecAction.exe command line utility.
     static function OnExecAction(sParams: String[]): Boolean {
 
-    FiddlerObject.StatusText = "ExecAction: " + sParams[0];
+        FiddlerObject.StatusText = "ExecAction: " + sParams[0];
 
-    var sAction = sParams[0].toLowerCase();
-    switch (sAction) {
-    case "bold":
-        if (sParams.Length<2) {uiBoldURI=null; FiddlerObject.StatusText="Bolding cleared"; return false;}
-        uiBoldURI = sParams[1]; FiddlerObject.StatusText="Bolding requests for " + uiBoldURI;
-        return true;
-    case "bp":
-        FiddlerObject.alert("bpu = breakpoint request for uri\nbpm = breakpoint request method\nbps=breakpoint response status\nbpafter = breakpoint response for URI");
-        return true;
-    case "bps":
-        if (sParams.Length<2) {bpStatus=-1; FiddlerObject.StatusText="Response Status breakpoint cleared"; return false;}
-        bpStatus = parseInt(sParams[1]); FiddlerObject.StatusText="Response status breakpoint for " + sParams[1];
-        return true;
-    case "bpv":
-    case "bpm":
-        if (sParams.Length<2) {bpMethod=null; FiddlerObject.StatusText="Request Method breakpoint cleared"; return false;}
-        bpMethod = sParams[1].toUpperCase(); FiddlerObject.StatusText="Request Method breakpoint for " + bpMethod;
-        return true;
-    case "bpu":
-        if (sParams.Length<2) {bpRequestURI=null; FiddlerObject.StatusText="RequestURI breakpoint cleared"; return false;}
-        bpRequestURI = sParams[1]; 
-        FiddlerObject.StatusText="RequestURI breakpoint for "+sParams[1];
-        return true;
-    case "bpa":
-    case "bpafter":
-        if (sParams.Length<2) {bpResponseURI=null; FiddlerObject.StatusText="ResponseURI breakpoint cleared"; return false;}
-        bpResponseURI = sParams[1]; 
-        FiddlerObject.StatusText="ResponseURI breakpoint for "+sParams[1];
-        return true;
-    case "overridehost":
-        if (sParams.Length<3) {gs_OverridenHost=null; FiddlerObject.StatusText="Host Override cleared"; return false;}
-        gs_OverridenHost = sParams[1].toLowerCase();
-        gs_OverrideHostWith = sParams[2];
-        FiddlerObject.StatusText="Connecting to [" + gs_OverrideHostWith + "] for requests to [" + gs_OverridenHost + "]";
-        return true;
-    case "urlreplace":
-        if (sParams.Length<3) {gs_ReplaceToken=null; FiddlerObject.StatusText="URL Replacement cleared"; return false;}
-        gs_ReplaceToken = sParams[1];
-        gs_ReplaceTokenWith = sParams[2].Replace(" ", "%20");  // Simple helper
-        FiddlerObject.StatusText="Replacing [" + gs_ReplaceToken + "] in URIs with [" + gs_ReplaceTokenWith + "]";
-        return true;
-    case "allbut":
-    case "keeponly":
-        if (sParams.Length<2) { FiddlerObject.StatusText="Please specify Content-Type to retain during wipe."; return false;}
-        UI.actSelectSessionsWithResponseHeaderValue("Content-Type", sParams[1]);
-        UI.actRemoveUnselectedSessions();
-        UI.lvSessions.SelectedItems.Clear();
-        FiddlerObject.StatusText="Removed all but Content-Type: " + sParams[1];
-        return true;
-    case "stop":
-        UI.actDetachProxy();
-        return true;
-    case "start":
-        UI.actAttachProxy();
-        return true;
-    case "cls":
-    case "clear":
-        UI.actRemoveAllSessions();
-        return true;
-    case "g":
-    case "go":
-        UI.actResumeAllSessions();
-        return true;
-    case "goto":
-        if (sParams.Length != 2) return false;
-        Utilities.LaunchHyperlink("http://www.google.com/search?hl=en&btnI=I%27m+Feeling+Lucky&q=" + Utilities.UrlEncode(sParams[1]));
-        return true;
-    case "help":
-        Utilities.LaunchHyperlink("http://fiddler2.com/r/?quickexec");
-        return true;
-    case "hide":
-        UI.actMinimizeToTray();
-        return true;
-    case "log":
-        FiddlerApplication.Log.LogString((sParams.Length<2) ? "User couldn't think of anything to say..." : sParams[1]);
-        return true;
-    case "nuke":
-        UI.actClearWinINETCache();
-        UI.actClearWinINETCookies(); 
-        return true;
-    case "screenshot":
-        UI.actCaptureScreenshot(false);
-        return true;
-    case "show":
-        UI.actRestoreWindow();
-        return true;
-    case "tail":
-        if (sParams.Length<2) { FiddlerObject.StatusText="Please specify # of sessions to trim the session list to."; return false;}
-        UI.TrimSessionList(int.Parse(sParams[1]));
-        return true;
-    case "quit":
-        UI.actExit();
-        return true;
-    case "dump":
-        UI.actSelectAll();
-        UI.actSaveSessionsToZip(CONFIG.GetPath("Captures") + "dump.saz");
-        UI.actRemoveAllSessions();
-        FiddlerObject.StatusText = "Dumped all sessions to " + CONFIG.GetPath("Captures") + "dump.saz";
-        return true;
+        var sAction = sParams[0].toLowerCase();
+        switch (sAction) {
+            case "bold":
+                if (sParams.Length<2) {uiBoldURI=null; FiddlerObject.StatusText="Bolding cleared"; return false;}
+                uiBoldURI = sParams[1]; FiddlerObject.StatusText="Bolding requests for " + uiBoldURI;
+                return true;
+            case "bp":
+                FiddlerObject.alert("bpu = breakpoint request for uri\nbpm = breakpoint request method\nbps=breakpoint response status\nbpafter = breakpoint response for URI");
+                return true;
+            case "bps":
+                if (sParams.Length<2) {bpStatus=-1; FiddlerObject.StatusText="Response Status breakpoint cleared"; return false;}
+                bpStatus = parseInt(sParams[1]); FiddlerObject.StatusText="Response status breakpoint for " + sParams[1];
+                return true;
+            case "bpv":
+            case "bpm":
+                if (sParams.Length<2) {bpMethod=null; FiddlerObject.StatusText="Request Method breakpoint cleared"; return false;}
+                bpMethod = sParams[1].toUpperCase(); FiddlerObject.StatusText="Request Method breakpoint for " + bpMethod;
+                return true;
+            case "bpu":
+                if (sParams.Length<2) {bpRequestURI=null; FiddlerObject.StatusText="RequestURI breakpoint cleared"; return false;}
+                bpRequestURI = sParams[1]; 
+                FiddlerObject.StatusText="RequestURI breakpoint for "+sParams[1];
+                return true;
+            case "bpa":
+            case "bpafter":
+                if (sParams.Length<2) {bpResponseURI=null; FiddlerObject.StatusText="ResponseURI breakpoint cleared"; return false;}
+                bpResponseURI = sParams[1]; 
+                FiddlerObject.StatusText="ResponseURI breakpoint for "+sParams[1];
+                return true;
+            case "overridehost":
+                if (sParams.Length<3) {gs_OverridenHost=null; FiddlerObject.StatusText="Host Override cleared"; return false;}
+                gs_OverridenHost = sParams[1].toLowerCase();
+                gs_OverrideHostWith = sParams[2];
+                FiddlerObject.StatusText="Connecting to [" + gs_OverrideHostWith + "] for requests to [" + gs_OverridenHost + "]";
+                return true;
+            case "urlreplace":
+                if (sParams.Length<3) {gs_ReplaceToken=null; FiddlerObject.StatusText="URL Replacement cleared"; return false;}
+                gs_ReplaceToken = sParams[1];
+                gs_ReplaceTokenWith = sParams[2].Replace(" ", "%20");  // Simple helper
+                FiddlerObject.StatusText="Replacing [" + gs_ReplaceToken + "] in URIs with [" + gs_ReplaceTokenWith + "]";
+                return true;
+            case "allbut":
+            case "keeponly":
+                if (sParams.Length<2) { FiddlerObject.StatusText="Please specify Content-Type to retain during wipe."; return false;}
+                UI.actSelectSessionsWithResponseHeaderValue("Content-Type", sParams[1]);
+                UI.actRemoveUnselectedSessions();
+                UI.lvSessions.SelectedItems.Clear();
+                FiddlerObject.StatusText="Removed all but Content-Type: " + sParams[1];
+                return true;
+            case "stop":
+                UI.actDetachProxy();
+                return true;
+            case "start":
+                UI.actAttachProxy();
+                return true;
+            case "cls":
+            case "clear":
+                UI.actRemoveAllSessions();
+                return true;
+            case "g":
+            case "go":
+                UI.actResumeAllSessions();
+                return true;
+            case "goto":
+                if (sParams.Length != 2) return false;
+                Utilities.LaunchHyperlink("http://www.google.com/search?hl=en&btnI=I%27m+Feeling+Lucky&q=" + Utilities.UrlEncode(sParams[1]));
+                return true;
+            case "help":
+                Utilities.LaunchHyperlink("http://fiddler2.com/r/?quickexec");
+                return true;
+            case "hide":
+                UI.actMinimizeToTray();
+                return true;
+            case "log":
+                FiddlerApplication.Log.LogString((sParams.Length<2) ? "User couldn't think of anything to say..." : sParams[1]);
+                return true;
+            case "nuke":
+                UI.actClearWinINETCache();
+                UI.actClearWinINETCookies(); 
+                return true;
+            case "screenshot":
+                UI.actCaptureScreenshot(false);
+                return true;
+            case "show":
+                UI.actRestoreWindow();
+                return true;
+            case "tail":
+                if (sParams.Length<2) { FiddlerObject.StatusText="Please specify # of sessions to trim the session list to."; return false;}
+                UI.TrimSessionList(int.Parse(sParams[1]));
+                return true;
+            case "quit":
+                UI.actExit();
+                return true;
+            case "dump":
+                UI.actSelectAll();
+                UI.actSaveSessionsToZip(CONFIG.GetPath("Captures") + "dump.saz");
+                UI.actRemoveAllSessions();
+                FiddlerObject.StatusText = "Dumped all sessions to " + CONFIG.GetPath("Captures") + "dump.saz";
+                return true;
 
-    default:
-        if (sAction.StartsWith("http") || sAction.StartsWith("www.")) {
-            System.Diagnostics.Process.Start(sParams[0]);
-            return true;
+            default:
+                if (sAction.StartsWith("http") || sAction.StartsWith("www.")) {
+                    System.Diagnostics.Process.Start(sParams[0]);
+                    return true;
+                }
+                else
+                {
+                    FiddlerObject.StatusText = "Requested ExecAction: '" + sAction + "' not found. Type HELP to learn more.";
+                    return false;
+                }
         }
-        else
-        {
-            FiddlerObject.StatusText = "Requested ExecAction: '" + sAction + "' not found. Type HELP to learn more.";
-            return false;
-        }
-    }
     }
 }
+
+
+
+
