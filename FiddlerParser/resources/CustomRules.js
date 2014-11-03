@@ -66,7 +66,14 @@ class Handlers
     Utilities.LaunchHyperlink(sAction);
     }
     */
-        
+    // ====================================================================================================
+    // Json Test Tab
+    // ----------------------------------------------------------------------------------------------------
+    // Description : Show a Tab in Fiddler with a Json Test Case for selected Sessions 
+    // Author      : Numa Canedo
+    // Version     : 1.0
+    // Date        : November 02, 2014
+    // ====================================================================================================
     public BindUITab("Json Test")
     static function JsonTest(oSession: Session[]):String {
         var index: Number   = 0;
@@ -91,7 +98,15 @@ class Handlers
         
         return String.Empty;
     }
-        
+    
+    // ====================================================================================================
+    // Parameters String Tab (Just for Testing purposes, this Tab will be deprecated shortly)
+    // ----------------------------------------------------------------------------------------------------
+    // Description : Show a Tab in Fiddler with Response Data Parameters
+    // Author      : Numa Canedo
+    // Version     : 1.0
+    // Date        : November 02, 2014
+    // ====================================================================================================    
     public BindUITab("Parameters String")
     static function ValidateResponseData(oSession: Session[]):String {
         var oSB: System.Text.StringBuilder = new System.Text.StringBuilder();
@@ -107,7 +122,7 @@ class Handlers
                 for (var dataAttribute:DictionaryEntry in dataObject) {
                     var key: String     = dataAttribute.Key;
                     var value: String   = dataAttribute.Value;
-                    if (value == null || value.ToUpper().Equals("UNDEFINED")) {
+                    if (value == null || value.Equals("undefined")) {
                         value = String.Empty;
                     }
                     
@@ -123,13 +138,29 @@ class Handlers
         
         return String.Empty;
     }
-            
+    
+    // ====================================================================================================
+    // Method Column
+    // ----------------------------------------------------------------------------------------------------
+    // Description : Show a Fiddler Column with Request Method 
+    // Author      : Numa Canedo
+    // Version     : 1.0
+    // Date        : November 02, 2014
+    // ====================================================================================================
     public static BindUIColumn("Method")
     function Method(oSession: Session): String{
         if (responseReady(oSession)) return oSession.oRequest.headers.HTTPMethod;
         return String.Empty;
     }
-        
+    
+    // ====================================================================================================
+    // Operation Column
+    // ----------------------------------------------------------------------------------------------------
+    // Description : Show a Fiddler Column with Resolve Operation being called
+    // Author      : Numa Canedo
+    // Version     : 1.0
+    // Date        : November 02, 2014
+    // ====================================================================================================
     public static BindUIColumn("Operation")
     function Operation(oSession: Session): String{
         if (responseReady(oSession)) {
@@ -149,31 +180,71 @@ class Handlers
             }
         }
     }
-        
+    
+    // ====================================================================================================
+    // Payload Column
+    // ----------------------------------------------------------------------------------------------------
+    // Description : Show a Fiddler Column with Request Payload(Json or Request Form Parameters)
+    // Author      : Numa Canedo
+    // Version     : 1.0
+    // Date        : November 02, 2014
+    // ====================================================================================================    
     public static BindUIColumn("Payload")
     function Payload(oSession: Session): String{
         if (responseReady(oSession)) return oSession.GetRequestBodyAsString();
         return String.Empty;
     }
     
+    // ====================================================================================================
+    // Success Column
+    // ----------------------------------------------------------------------------------------------------
+    // Description : Show a Fiddler Column with Response Success
+    // Author      : Numa Canedo
+    // Version     : 1.0
+    // Date        : November 02, 2014
+    // ====================================================================================================
     public static BindUIColumn("Success")
     function Success(oSession: Session): String{
         if (responseReady(oSession)) return readResponseValue(oSession, "success");
         return String.Empty;
     }
-        
+    
+    // ====================================================================================================
+    // Message Column
+    // ----------------------------------------------------------------------------------------------------
+    // Description : Show a Fiddler Column with Response Message
+    // Author      : Numa Canedo
+    // Version     : 1.0
+    // Date        : November 02, 2014
+    // ====================================================================================================    
     public static BindUIColumn("Message")
     function Message(oSession: Session): String{
         if (responseReady(oSession)) return readResponseValue(oSession, "message");
         return String.Empty;
     }
-        
+    
+    // ====================================================================================================
+    // Total Column
+    // ----------------------------------------------------------------------------------------------------
+    // Description : Show a Fiddler Column with Response Total
+    // Author      : Numa Canedo
+    // Version     : 1.0
+    // Date        : November 02, 2014
+    // ====================================================================================================    
     public static BindUIColumn("Total")
     function Total(oSession: Session): String{
         if (responseReady(oSession)) return readResponseValue(oSession, "total");
         return String.Empty;
     }
-        
+    
+    // ====================================================================================================
+    // Parameters Column
+    // ----------------------------------------------------------------------------------------------------
+    // Description : Show a Fiddler Column with Query String Parameters white spaces separated and unescape
+    // Author      : Numa Canedo
+    // Version     : 1.0
+    // Date        : November 02, 2014
+    // ====================================================================================================     
     public static BindUIColumn("Parameters")
     function Parameters(oSession: Session): String{
 
@@ -192,6 +263,14 @@ class Handlers
         return parameters;
     }
     
+    // ====================================================================================================
+    // Test Column
+    // ----------------------------------------------------------------------------------------------------
+    // Description : Used to trigger Json Generation and Message to Fiddler Log
+    // Author      : Numa Canedo
+    // Version     : 1.0
+    // Date        : November 02, 2014
+    // ====================================================================================================
     public static BindUIColumn("Test")
     function Test(oSession: Session): String{
         var test: String = JsonTest(oSession);
@@ -199,40 +278,70 @@ class Handlers
         if (!test.Equals(String.Empty)) {
         
             FiddlerApplication.Log.LogString("[JSON Test] " + JsonTest(oSession));
+            return "Available";
         }
         
         return String.Empty;
     }
+    
         
+    // ====================================================================================================
+    // JsonTest: String
+    // ----------------------------------------------------------------------------------------------------
+    // Description : Create Json Test Content for Fiddler Sessions
+    // Author      : Numa Canedo
+    // Version     : 1.0
+    // Date        : November 02, 2014
+    // ====================================================================================================
     public static function JsonTest(oSession: Session): String {
         if (responseReady(oSession) && oSession.fullUrl.Contains("/resolve/service") && !oSession.fullUrl.Contains("/client/poll")) {
-
-            var test: Object        = Fiddler.WebFormats.JSON.JsonDecode('{name: "", path: "", description: "", method: "", requestType: "", responseType: "", queryParams: [], requestForm: [], jsonPayload: {baseNode: ""}, handleResponse: {statusCode: "", failLevel: "", failureMessage: "", responseChecks: []}, testOps: []}');
-            var paramObject: Object = Fiddler.WebFormats.JSON.JsonDecode('{key: "", type: "", value: ""}');
-            var tesOpObject: Object = Fiddler.WebFormats.JSON.JsonDecode('{method: "", sourceType: "", sourceKey: "", targetKey: ""}');
-            var payload: String     = Payload(oSession);
-            var parameters: String  = ParametersString(oSession);
+            // ====================================================================================================
+            // JSON Strings
+            // ----------------------------------------------------------------------------------------------------
+            var testString  : String  = '{name: "", path: "", description: "", method: "", requestType: "", responseType: "", queryParams: [], requestForm: [], jsonPayload: {baseNode: ""}, handleResponse: {statusCode: "", failLevel: "", failureMessage: "", responseChecks: []}, testOps: []}';
+            var paramString : String = '{key: "", type: "", value: ""}';
+            var checkString : String = '{method: "", sourceType: "", sourceKey: "", targetKey: ""}';
+            var tesOpString : String = '{compareMethod: "", sourceType: "", sourceKey: "", targetType: "", targetKey: ""}';
             
-            var params: Array;
-            var i: Number;;
-            var key: String;
-            var value: String;
+            // ====================================================================================================
+            // Variables
+            // ----------------------------------------------------------------------------------------------------
+            var test        : Object = Fiddler.WebFormats.JSON.JsonDecode(testString);
+            var paramObject : Object = Fiddler.WebFormats.JSON.JsonDecode(paramString);
+            var checkObject : Object = Fiddler.WebFormats.JSON.JsonDecode(checkString);
+            var tesOpObject : Object = Fiddler.WebFormats.JSON.JsonDecode(tesOpString);
+            
+            var response    : Object = Fiddler.WebFormats.JSON.JsonDecode(oSession.GetResponseBodyAsString());
+            var data        : Object = response.JSONObject["data"];
+            
+            var payload     : String = Payload(oSession);
+            var parameters  : String = ParametersString(oSession);
+            
+            var params      : Array;
+            var i           : Number;
+            var key         : String;
+            var value       : String;
     
+            // ====================================================================================================
+            // Test Case
+            // ----------------------------------------------------------------------------------------------------
             test.JSONObject["name"]           = Operation(oSession);
             test.JSONObject["path"]           = Operation(oSession);
             test.JSONObject["description"]    = Operation(oSession);
             test.JSONObject["method"]         = Method(oSession);
             test.JSONObject["requestType"]    = "URLENCODED_FORM_APPLICATION";
             test.JSONObject["responseType"]   = "JSON_APPLICATION";
-    
-            test.JSONObject["handleResponse"]["statusCode"]      = oSession.responseCode;
-            test.JSONObject["handleResponse"]["failLevel"]       = "ERROR";
-            test.JSONObject["handleResponse"]["failureMessage"]  = "Failed";
 
+            // ====================================================================================================
+            // JsoN Payload
+            // ----------------------------------------------------------------------------------------------------
             if(oSession.oRequest.headers.ExistsAndContains("Content-Type", "json")) {
                 test.JSONObject["requestType"] = "JSON_APPLICATION";
                 test.JSONObject["jsonPayload"]["baseNode"] = Payload(oSession);
             } else if(oSession.oRequest.headers.ExistsAndContains("Content-Type", "urlencoded")) {
+                // ====================================================================================================
+                // Request Form Parameters
+                // ----------------------------------------------------------------------------------------------------
                 test.JSONObject["requestType"] = "URLENCODED_FORM_APPLICATION";
         
                 if (payload != null && !payload.Equals(String.Empty)) {
@@ -255,7 +364,10 @@ class Handlers
                 }
         
             }
-    
+            
+            // ====================================================================================================
+            // Query String Parameters
+            // ----------------------------------------------------------------------------------------------------
             if (parameters != null && !parameters.Equals(String.Empty)) {
                 params  = parameters.split("&");
     
@@ -273,83 +385,75 @@ class Handlers
                     }
                 }
             }
-    
-            test.JSONObject["handleResponse"]["responseChecks"].Add(new Hashtable());
-            test.JSONObject["handleResponse"]["responseChecks"][0].Add("sourceType", "JSON");
-            test.JSONObject["handleResponse"]["responseChecks"][0].Add("sourceKey", "$.success");
-            test.JSONObject["handleResponse"]["responseChecks"][0].Add("compareMethod", "EQUAL");
-            test.JSONObject["handleResponse"]["responseChecks"][0].Add("targetType", "PLAIN");
-            test.JSONObject["handleResponse"]["responseChecks"][0].Add("targetKey", readResponseValue(oSession, "success"));
-    
-            if (readResponseValue(oSession, "success").Equals(String.Empty)) {
             
-                test.JSONObject["handleResponse"]["responseChecks"].Add(new Hashtable());
-                test.JSONObject["handleResponse"]["responseChecks"][1].Add("sourceType", "JSON");
-                test.JSONObject["handleResponse"]["responseChecks"][1].Add("sourceKey", "$.data");
-                test.JSONObject["handleResponse"]["responseChecks"][1].Add("compareMethod", "EQUAL");
-                test.JSONObject["handleResponse"]["responseChecks"][1].Add("targetType", "PLAIN");
-                test.JSONObject["handleResponse"]["responseChecks"][1].Add("targetKey", "");
-            } else {
-                test.JSONObject["handleResponse"]["responseChecks"].Add(new Hashtable());
-                test.JSONObject["handleResponse"]["responseChecks"][1].Add("sourceType", "JSON");
-                test.JSONObject["handleResponse"]["responseChecks"][1].Add("sourceKey", "$.data");
-                test.JSONObject["handleResponse"]["responseChecks"][1].Add("compareMethod", "NOTEMPTY");
-                test.JSONObject["handleResponse"]["responseChecks"][1].Add("targetType", "PLAIN");
-                test.JSONObject["handleResponse"]["responseChecks"][1].Add("targetKey", "");
+            // ====================================================================================================
+            // Handle Response
+            // ----------------------------------------------------------------------------------------------------
+            test.JSONObject["handleResponse"]["statusCode"]      = oSession.responseCode;
+            test.JSONObject["handleResponse"]["failLevel"]       = "ERROR";
+            test.JSONObject["handleResponse"]["failureMessage"]  = "Failed";
+            
+            // ====================================================================================================
+            // Response Checks (Common to all Tests)
+            // ----------------------------------------------------------------------------------------------------
+            checkObject = CheckObject("JSON", "$.success", "EQUAL", "PLAIN", readResponseValue(oSession, "success"));
+            test.JSONObject["handleResponse"]["responseChecks"].Add(checkObject.JSONObject);
+            
+            checkObject = CheckObject("JSON", "$.data", "EQUAL", "PLAIN", "");
+            if (data != null) checkObject.JSONObject["compareMethod"] = "NOTEMPTY";
+            test.JSONObject["handleResponse"]["responseChecks"].Add(checkObject.JSONObject);
+            
+            checkObject = CheckObject("JSON", "$.message", "EQUAL", "PLAIN", readResponseValue(oSession, "message"));
+            test.JSONObject["handleResponse"]["responseChecks"].Add(checkObject.JSONObject);
+            
+            checkObject = CheckObject("JSON", "$.records", "EQUAL", "PLAIN", "");
+            if (!readResponseValue(oSession, "records").Equals(String.Empty)) {
+                checkObject.JSONObject["compareMethod"] = "SIZEEQUAL";
+                checkObject.JSONObject["targetKey"]     = readResponseValue(oSession, "total");
             }
-    
-            test.JSONObject["handleResponse"]["responseChecks"].Add(new Hashtable());
-            test.JSONObject["handleResponse"]["responseChecks"][2].Add("sourceType", "JSON");
-            test.JSONObject["handleResponse"]["responseChecks"][2].Add("sourceKey", "$.message");
-            test.JSONObject["handleResponse"]["responseChecks"][2].Add("compareMethod", "EQUAL");
-            test.JSONObject["handleResponse"]["responseChecks"][2].Add("targetType", "PLAIN");
-            test.JSONObject["handleResponse"]["responseChecks"][2].Add("targetKey", readResponseValue(oSession, "message"));
-    
-            if (readResponseValue(oSession, "records").Equals(String.Empty)) {
-                test.JSONObject["handleResponse"]["responseChecks"].Add(new Hashtable());
-                test.JSONObject["handleResponse"]["responseChecks"][3].Add("sourceType", "JSON");
-                test.JSONObject["handleResponse"]["responseChecks"][3].Add("sourceKey", "$.records");
-                test.JSONObject["handleResponse"]["responseChecks"][3].Add("compareMethod", "EQUAL");
-                test.JSONObject["handleResponse"]["responseChecks"][3].Add("targetType", "PLAIN");
-                test.JSONObject["handleResponse"]["responseChecks"][3].Add("targetKey", "");
-            } else {
-                test.JSONObject["handleResponse"]["responseChecks"].Add(new Hashtable());
-                test.JSONObject["handleResponse"]["responseChecks"][3].Add("sourceType", "JSON");
-                test.JSONObject["handleResponse"]["responseChecks"][3].Add("sourceKey", "$.records");
-                test.JSONObject["handleResponse"]["responseChecks"][3].Add("compareMethod", "SIZEEQUAL");
-                test.JSONObject["handleResponse"]["responseChecks"][3].Add("targetType", "PLAIN");
-                test.JSONObject["handleResponse"]["responseChecks"][3].Add("targetKey", readResponseValue(oSession, "total"));
-            }
-    
-            test.JSONObject["handleResponse"]["responseChecks"].Add(new Hashtable());
-            test.JSONObject["handleResponse"]["responseChecks"][4].Add("sourceType", "JSON");
-            test.JSONObject["handleResponse"]["responseChecks"][4].Add("sourceKey", "$.total");
-            test.JSONObject["handleResponse"]["responseChecks"][4].Add("compareMethod", "EQUAL");
-            test.JSONObject["handleResponse"]["responseChecks"][4].Add("targetType", "PLAIN");
-            test.JSONObject["handleResponse"]["responseChecks"][4].Add("targetKey", readResponseValue(oSession, "total"));
+            test.JSONObject["handleResponse"]["responseChecks"].Add(checkObject.JSONObject);
             
+            checkObject = CheckObject("JSON", "$.total", "EQUAL", "PLAIN", readResponseValue(oSession, "total"));
+            test.JSONObject["handleResponse"]["responseChecks"].Add(checkObject.JSONObject);
             
-            var dataObject: Object = Fiddler.WebFormats.JSON.JsonDecode(oSession.GetResponseBodyAsString()).JSONObject["data"];
-            
-            
-            if (dataObject != null) {
-                for (var dataAttribute:DictionaryEntry in dataObject) {
-                    var dataAttributeKey: String     = dataAttribute.Key;
-                    var dataAttributeValue: String   = dataAttribute.Value;
-                    if (dataAttributeValue == null || dataAttributeValue.ToUpper().Equals("UNDEFINED")) {
-                        dataAttributeValue = String.Empty;
+            // ====================================================================================================
+            // Test Operations and Response Checks for $.data Elements
+            // ----------------------------------------------------------------------------------------------------
+            if (data != null) {
+                for (var dataAttr:DictionaryEntry in data) {
+                    var dataKey: String     = dataAttr.Key;
+                    var dataValue: String   = dataAttr.Value;
+                    if (dataValue == null || dataValue.Equals("undefined")) {
+                        dataValue = String.Empty;
+                    }
+                    
+                    checkObject = CheckObject("JSON", "$.data." + dataKey, "NOTEMPTY", "PLAIN", "");
+                    if (dataValue.Equals(String.Empty) || dataValue.Equals("UNDEFINED")) {
+                        checkObject.JSONObject["compareMethod"]  = "EQUAL";
+                        checkObject.JSONObject["targetKey"]      = dataValue;
                     }
                     
                     tesOpObject = Fiddler.WebFormats.JSON.JsonDecode('{method: "", sourceType: "", sourceKey: "", targetKey: ""}');
                     tesOpObject.JSONObject["method"]        = "ASSIGN";
                     tesOpObject.JSONObject["sourceType"]    = "JSON";
-                    tesOpObject.JSONObject["sourceKey"]     = "$." + dataAttributeKey;
-                    tesOpObject.JSONObject["targetKey"]     = dataAttributeKey;
+                    tesOpObject.JSONObject["sourceKey"]     = "$.data." + dataKey;
+                    tesOpObject.JSONObject["targetKey"]     = "data_" + dataKey;
                     
+                    test.JSONObject["handleResponse"]["responseChecks"].Add(checkObject.JSONObject);
                     test.JSONObject["testOps"].Add(tesOpObject.JSONObject);
                 }
  
             }
+            
+            // ====================================================================================================
+            // Test Operation for Total
+            // ----------------------------------------------------------------------------------------------------
+            tesOpObject = Fiddler.WebFormats.JSON.JsonDecode('{method: "", sourceType: "", sourceKey: "", targetKey: ""}');
+            tesOpObject.JSONObject["method"]        = "ASSIGN";
+            tesOpObject.JSONObject["sourceType"]    = "JSON";
+            tesOpObject.JSONObject["sourceKey"]     = "$.total";
+            tesOpObject.JSONObject["targetKey"]     = "total";
+            test.JSONObject["testOps"].Add(tesOpObject.JSONObject);
             
             return Fiddler.WebFormats.JSON.JsonEncode(test.JSONObject);
         }
@@ -357,6 +461,14 @@ class Handlers
         return String.Empty;
     }
         
+    // ====================================================================================================
+    // ParametersString: String
+    // ----------------------------------------------------------------------------------------------------
+    // Description : Extract Parameters String from URL
+    // Author      : Numa Canedo
+    // Version     : 1.0
+    // Date        : November 02, 2014
+    // ====================================================================================================
     public static function ParametersString(oSession: Session): String {
         var baseUrl: String = "/resolve/service";
         
@@ -373,7 +485,14 @@ class Handlers
         return unescape(oSession.url.Substring(oSession.host.Length));;
     }
 
-        
+    // ====================================================================================================
+    // responseReady: boolean
+    // ----------------------------------------------------------------------------------------------------
+    // Description : Confirm that response was received and Content is Json
+    // Author      : Numa Canedo
+    // Version     : 1.0
+    // Date        : November 02, 2014
+    // ====================================================================================================    
     public static function responseReady(oSession: Session): boolean {
         return oSession.responseCode != 0 && oSession.oResponse.headers.ExistsAndContains("Content-Type", "json");
     }
@@ -385,10 +504,29 @@ class Handlers
             var jsonObject: Object = Fiddler.WebFormats.JSON.JsonDecode(jsonString).JSONObject[value];
             if (jsonObject == null) return String.Empty;
             
-            return jsonObject.ToString();
+            return Fiddler.WebFormats.JSON.JsonEncode(jsonObject);
         }
         
         return String.Empty;
+    }
+    
+    // ====================================================================================================
+    // CheckObject: Object
+    // ----------------------------------------------------------------------------------------------------
+    // Description : Build a Check Response Json Object
+    // Author      : Numa Canedo
+    // Version     : 1.0
+    // Date        : November 02, 2014
+    // ====================================================================================================    
+    public static function CheckObject(sourceType: String, sourceKey: String, compareMethod: String, targetType: String, targetKey: String) : Object {
+        var checkObject:Object = Fiddler.WebFormats.JSON.JsonDecode('{compareMethod: "", sourceType: "", sourceKey: "", targetType: "", targetKey: ""}');
+        checkObject.JSONObject["sourceType"]     = sourceType;
+        checkObject.JSONObject["sourceKey"]      = sourceKey;
+        checkObject.JSONObject["compareMethod"]  = compareMethod;
+        checkObject.JSONObject["targetType"]     = targetType;
+        checkObject.JSONObject["targetKey"]      = targetKey;
+        
+        return checkObject;
     }
         
     public static RulesOption("Hide 304s")
@@ -828,7 +966,3 @@ class Handlers
         }
     }
 }
-
-
-
-
