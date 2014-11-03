@@ -798,41 +798,41 @@ class Handlers
             oSession["ui-hide"] = "true";
         }
         
-        if (responseReady(oSession) && (oSession.responseCode == 200) && oSession.fullUrl.Contains("/resolve/service/wiki/impex/download")) { 
-            oSession.SaveResponseBody("C:\\Users\\ncanedo\\Desktop\\RunBooks\\" + oSession.SuggestedFilename);
-        }
-        
-        
-        if (false) {
-            if (responseReady(oSession)) {
-                var baseUrl:String  = "/resolve/service";
-                var filename:String = "";
-            
-                if (oSession.url.Contains(baseUrl) && !oSession.url.Contains("/client/poll")) {
-                    var JSONResponse: Object    = Fiddler.WebFormats.JSON.JsonDecode(oSession.GetResponseBodyAsString());
-                    var success:String          = JSONResponse.JSONObject["success"].ToString();
-                    var startPosition:Number    = oSession.host.Length + baseUrl.Length + 1;
-                    var endPosition:Number      = oSession.url.Length;
-                
-                    if (success.Equals("True")) {
-                        success = "Success";
-                    } else {
-                        success = "False";
-                    }
-                
-                    if (oSession.url.Contains("?")) {
-                        endPosition = oSession.url.IndexOf("?");
-                    }
-                    
-                    if (success.Equals("False")) {
-                
-                        filename = oSession.url.Substring(startPosition, endPosition - startPosition).Replace("/", ".") + "-" + success + "_" + oSession.SuggestedFilename.Replace("_", "");
-                
-                        oSession.SaveSession("C:\\Users\\ncanedo\\Desktop\\FiddlerSessions\\" + filename, false);
-                    }
-                }
-            }
-        }
+        //if (responseReady(oSession) && (oSession.responseCode == 200) && oSession.fullUrl.Contains("/resolve/service/wiki/impex/download")) { 
+        //    oSession.SaveResponseBody("C:\\Users\\ncanedo\\Desktop\\RunBooks\\" + oSession.SuggestedFilename);
+        //}
+        //
+        //
+        //if (1==0) {
+        //    if (responseReady(oSession)) {
+        //        var baseUrl:String  = "/resolve/service";
+        //        var filename:String = "";
+        //    
+        //        if (oSession.url.Contains(baseUrl) && !oSession.url.Contains("/client/poll")) {
+        //            var JSONResponse: Object    = Fiddler.WebFormats.JSON.JsonDecode(oSession.GetResponseBodyAsString());
+        //            var success:String          = JSONResponse.JSONObject["success"].ToString();
+        //            var startPosition:Number    = oSession.host.Length + baseUrl.Length + 1;
+        //            var endPosition:Number      = oSession.url.Length;
+        //        
+        //            if (success.Equals("True")) {
+        //                success = "Success";
+        //            } else {
+        //                success = "False";
+        //            }
+        //        
+        //            if (oSession.url.Contains("?")) {
+        //                endPosition = oSession.url.IndexOf("?");
+        //            }
+        //            
+        //            if (success.Equals("False")) {
+        //        
+        //                filename = oSession.url.Substring(startPosition, endPosition - startPosition).Replace("/", ".") + "-" + success + "_" + oSession.SuggestedFilename.Replace("_", "");
+        //        
+        //                oSession.SaveSession("C:\\Users\\ncanedo\\Desktop\\FiddlerSessions\\" + filename, false);
+        //            }
+        //        }
+        //    }
+        //}
     }
 
 /*
