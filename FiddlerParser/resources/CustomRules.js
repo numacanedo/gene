@@ -545,8 +545,6 @@ class Handlers
         for (var element:DictionaryEntry in jsonNode.JSONObject) {
             var elementKey   : String = element.Key;
             var elementValue : String = element.Value;
-            
-            FiddlerApplication.Log.LogString("Key: " + elementKey + " Value: " + elementValue);
                     
             if (elementValue.Equals("System.Collections.Hashtable")) {
                 var jsonNodeString : String = Fiddler.WebFormats.JSON.JsonEncode(jsonNode.JSONObject[elementKey]);
