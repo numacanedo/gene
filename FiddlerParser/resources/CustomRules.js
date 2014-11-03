@@ -107,37 +107,37 @@ class Handlers
     // Version     : 1.0
     // Date        : November 02, 2014
     // ====================================================================================================    
-    public BindUITab("Parameters String")
-    static function ValidateResponseData(oSession: Session[]):String {
-        var oSB: System.Text.StringBuilder = new System.Text.StringBuilder();
-		
-        for (var i:int = 0; i<oSession.Length; i++) {
- 
-            
-  
-            var dataObject: Object = Fiddler.WebFormats.JSON.JsonDecode(oSession[i].GetResponseBodyAsString()).JSONObject["data"];
-            
-            
-            if (dataObject != null) {
-                for (var dataAttribute:DictionaryEntry in dataObject) {
-                    var key: String     = dataAttribute.Key;
-                    var value: String   = dataAttribute.Value;
-                    if (value == null || value.Equals("undefined")) {
-                        value = String.Empty;
-                    }
-                    
-                    oSB.AppendLine(key + ":" + value);
-                }
- 
-            }
-
-
-        }
-        
-        if (oSession.Length > 0) return oSB.ToString();
-        
-        return String.Empty;
-    }
+    //public BindUITab("Parameters String")
+    //static function ValidateResponseData(oSession: Session[]):String {
+    //    var oSB: System.Text.StringBuilder = new System.Text.StringBuilder();
+    //	
+    //    for (var i:int = 0; i<oSession.Length; i++) {
+    //
+    //        
+    //
+    //        var dataObject: Object = Fiddler.WebFormats.JSON.JsonDecode(oSession[i].GetResponseBodyAsString()).JSONObject["data"];
+    //        
+    //        
+    //        if (dataObject != null) {
+    //            for (var dataAttribute:DictionaryEntry in dataObject) {
+    //                var key: String     = dataAttribute.Key;
+    //                var value: String   = dataAttribute.Value;
+    //                if (value == null || value.Equals("undefined")) {
+    //                    value = String.Empty;
+    //                }
+    //                
+    //                oSB.AppendLine(key + ":" + value);
+    //            }
+    //
+    //        }
+    //
+    //
+    //    }
+    //    
+    //    if (oSession.Length > 0) return oSB.ToString();
+    //    
+    //    return String.Empty;
+    //}
     
     // ====================================================================================================
     // Method Column
