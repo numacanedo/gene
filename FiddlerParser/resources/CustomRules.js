@@ -217,11 +217,11 @@ class Handlers
     // Version     : 1.0
     // Date        : November 02, 2014
     // ====================================================================================================    
-    public static BindUIColumn("Message")
-    function Message(oSession: Session): String{
-        if (responseReady(oSession)) return readResponseValue(oSession, "message");
-        return String.Empty;
-    }
+    //public static BindUIColumn("Message")
+    //function Message(oSession: Session): String{
+    //    if (responseReady(oSession)) return readResponseValue(oSession, "message");
+    //    return String.Empty;
+    //}
     
     // ====================================================================================================
     // Total Column
@@ -337,7 +337,7 @@ class Handlers
             // ----------------------------------------------------------------------------------------------------
             if(oSession.oRequest.headers.ExistsAndContains("Content-Type", "json")) {
                 test.JSONObject["requestType"] = "JSON_APPLICATION";
-                test.JSONObject["jsonPayload"]["baseNode"] = Payload(oSession);
+                test.JSONObject["jsonPayload"]["baseNode"] = clearIds(Payload(oSession));
             } else if(oSession.oRequest.headers.ExistsAndContains("Content-Type", "urlencoded")) {
                 // ====================================================================================================
                 // Request Form Parameters
@@ -527,6 +527,41 @@ class Handlers
         checkObject.JSONObject["targetKey"]      = targetKey;
         
         return checkObject;
+    }
+    
+    // ====================================================================================================
+    // clearIds: String
+    // ----------------------------------------------------------------------------------------------------
+    // Description : Remove hardcoded Ids from json payload
+    // Author      : Numa Canedo
+    // Version     : 1.0
+    // Date        : November 02, 2014
+    // ====================================================================================================  
+    public static function clearIds(jsonString: String): String {
+        var jsonNode  : Object = Fiddler.WebFormats.JSON.JsonDecode(jsonString);
+        var jsonObject: Object = Fiddler.WebFormats.JSON.JsonDecode(jsonString);
+        
+                
+        for (var element:DictionaryEntry in jsonNode.JSONObject) {
+            var elementKey   : String = element.Key;
+            var elementValue : String = element.Value;
+            
+            FiddlerApplication.Log.LogString("Key: " + elementKey + " Value: " + elementValue);
+                    
+            if (elementValue.Equals("System.Collections.Hashtable")) {
+                var jsonNodeString : String = Fiddler.WebFormats.JSON.JsonEncode(jsonNode.JSONObject[elementKey]);
+                var clearedString  : String = clearIds(jsonNodeString);
+                //jsonObject.JSONObject.Remove(elementKey);
+                jsonObject.JSONObject[elementKey] = Fiddler.WebFormats.JSON.JsonDecode(clearedString).JSONObject;
+            }
+                    
+            if (elementKey.ToLower().Contains("id")) {
+                if (!elementValue.Equals(String.Empty) && elementValue.Length == 32) {
+                    jsonObject.JSONObject[elementKey] = "";
+                }
+            }
+        }    
+        return Fiddler.WebFormats.JSON.JsonEncode(jsonObject.JSONObject);
     }
         
     public static RulesOption("Hide 304s")
