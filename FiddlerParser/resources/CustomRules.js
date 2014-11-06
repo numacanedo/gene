@@ -86,7 +86,7 @@ class Handlers
 
         for (var i:int = 0; i<oSession.Length; i++) {
             var test: String = JsonTest(oSession[i]);
-            
+
             if (!test.Equals(String.Empty)) {
                 var testObject: Object = Fiddler.WebFormats.JSON.JsonDecode(test);
                 testCase.JSONObject["tests"].Add(testObject.JSONObject);
@@ -95,49 +95,52 @@ class Handlers
         }
         
         if (index > 0) return Fiddler.WebFormats.JSON.JsonEncode(testCase.JSONObject);
+        FiddlerApplication.Log.LogString("4");
         
         return String.Empty;
     }
-    
+        
     // ====================================================================================================
-    // Parameters String Tab (Just for Testing purposes, this Tab will be deprecated shortly)
+    // Model Tab
     // ----------------------------------------------------------------------------------------------------
-    // Description : Show a Tab in Fiddler with Response Data Parameters
+    // Description : Show a Tab in Fiddler with Model XML
     // Author      : Numa Canedo
     // Version     : 1.0
-    // Date        : November 02, 2014
+    // Date        : November 05, 2014
     // ====================================================================================================    
-    //public BindUITab("Parameters String")
-    //static function ValidateResponseData(oSession: Session[]):String {
-    //    var oSB: System.Text.StringBuilder = new System.Text.StringBuilder();
-    //	
-    //    for (var i:int = 0; i<oSession.Length; i++) {
-    //
-    //        
-    //
-    //        var dataObject: Object = Fiddler.WebFormats.JSON.JsonDecode(oSession[i].GetResponseBodyAsString()).JSONObject["data"];
-    //        
-    //        
-    //        if (dataObject != null) {
-    //            for (var dataAttribute:DictionaryEntry in dataObject) {
-    //                var key: String     = dataAttribute.Key;
-    //                var value: String   = dataAttribute.Value;
-    //                if (value == null || value.Equals("undefined")) {
-    //                    value = String.Empty;
-    //                }
-    //                
-    //                oSB.AppendLine(key + ":" + value);
-    //            }
-    //
-    //        }
-    //
-    //
-    //    }
-    //    
-    //    if (oSession.Length > 0) return oSB.ToString();
-    //    
-    //    return String.Empty;
-    //}
+    public BindUITab ("Model Tab")
+    static function ModelTab(oSession: Session[]):String {
+        var oSB: System.Text.StringBuilder = new System.Text.StringBuilder();
+    	
+        for (var i:int = 0; i<oSession.Length; i++) {
+            if (oSession[i].responseCode == 200 && (oSession[i].oResponse.headers.ExistsAndContains("Content-Type", "json"))) {
+                var response    : Object = Fiddler.WebFormats.JSON.JsonDecode(oSession[i].GetResponseBodyAsString());
+                var data        : Object = response.JSONObject["data"];
+                
+                if (data != null) {
+                    oSB.AppendLine("SESSION: " + oSession[i].id);
+                    oSB.AppendLine("=========================");
+                    for (var dataAttr:DictionaryEntry in data) {
+                        var dataKey: String     = dataAttr.Key;
+                        var dataValue: String   = dataAttr.Value;
+                        if (dataKey.ToLower().Contains("umodel")) {
+                            oSB.AppendLine(dataKey);
+                            oSB.AppendLine("-------------------------");
+                            oSB.AppendLine(dataValue);
+                            oSB.AppendLine("");
+                        }
+                    }
+                    oSB.AppendLine("");
+
+                }
+            }
+            
+        }
+        
+        if (oSession.Length > 0) return oSB.ToString();
+        
+        return String.Empty;
+    }
     
     // ====================================================================================================
     // Method Column
@@ -149,8 +152,7 @@ class Handlers
     // ====================================================================================================
     public static BindUIColumn("Method")
     function Method(oSession: Session): String{
-        if (responseReady(oSession)) return oSession.oRequest.headers.HTTPMethod;
-        return String.Empty;
+        return oSession.oRequest.headers.HTTPMethod;
     }
     
     // ====================================================================================================
@@ -163,24 +165,24 @@ class Handlers
     // ====================================================================================================
     public static BindUIColumn("Operation")
     function Operation(oSession: Session): String{
-        if (responseReady(oSession)) {
-            var baseUrl: String = "/resolve/service";
         
-            if (oSession.url.Contains(baseUrl)) {
-                var startPosition:Number = oSession.host.Length + baseUrl.Length;
-                var endPosition:Number = oSession.url.Length;
-            
-                if (oSession.url.Contains("?")) {
-                    endPosition = oSession.url.IndexOf("?");
-                }
-            
-                return oSession.url.Substring(startPosition, endPosition - startPosition);
-            } else {
-                return oSession.url.Substring(oSession.host.Length);
-            }
-        }
-    }
+        var baseUrl: String = "/resolve/service";
     
+        if (oSession.url.Contains(baseUrl)) {
+            var startPosition:Number = oSession.host.Length + baseUrl.Length;
+            var endPosition:Number = oSession.url.Length;
+        
+            if (oSession.url.Contains("?")) {
+                endPosition = oSession.url.IndexOf("?");
+            }
+        
+            return oSession.url.Substring(startPosition, endPosition - startPosition);
+        }
+
+        
+        return oSession.url.Substring(oSession.host.Length);
+    }
+        
     // ====================================================================================================
     // Payload Column
     // ----------------------------------------------------------------------------------------------------
@@ -205,7 +207,7 @@ class Handlers
     // ====================================================================================================
     public static BindUIColumn("Success")
     function Success(oSession: Session): String{
-        if (responseReady(oSession)) return readResponseValue(oSession, "success");
+        if (responseReady(oSession)  && oSession.oResponse.headers.ExistsAndContains("Content-Type", "json")) return readResponseValue(oSession, "success");
         return String.Empty;
     }
     
@@ -219,7 +221,7 @@ class Handlers
     // ====================================================================================================    
     //public static BindUIColumn("Message")
     //function Message(oSession: Session): String{
-    //    if (responseReady(oSession)) return readResponseValue(oSession, "message");
+    //    if (responseReady(oSession)  && oSession.oResponse.headers.ExistsAndContains("Content-Type", "json")) return readResponseValue(oSession, "message");
     //    return String.Empty;
     //}
     
@@ -233,7 +235,7 @@ class Handlers
     // ====================================================================================================    
     public static BindUIColumn("Total")
     function Total(oSession: Session): String{
-        if (responseReady(oSession)) return readResponseValue(oSession, "total");
+        if (responseReady(oSession)  && oSession.oResponse.headers.ExistsAndContains("Content-Type", "json")) return readResponseValue(oSession, "total");
         return String.Empty;
     }
     
@@ -294,7 +296,7 @@ class Handlers
     // Date        : November 02, 2014
     // ====================================================================================================
     public static function JsonTest(oSession: Session): String {
-        if (responseReady(oSession) && oSession.fullUrl.Contains("/resolve/service") && !oSession.fullUrl.Contains("/client/poll")) {
+        if (responseReady(oSession) && oSession.responseCode == 200 && oSession.fullUrl.Contains("/resolve/service") && !oSession.fullUrl.Contains("/client/poll")) {
             // ====================================================================================================
             // JSON Strings
             // ----------------------------------------------------------------------------------------------------
@@ -311,8 +313,8 @@ class Handlers
             var checkObject : Object = Fiddler.WebFormats.JSON.JsonDecode(checkString);
             var tesOpObject : Object = Fiddler.WebFormats.JSON.JsonDecode(tesOpString);
             
-            var response    : Object = Fiddler.WebFormats.JSON.JsonDecode(oSession.GetResponseBodyAsString());
-            var data        : Object = response.JSONObject["data"];
+            var response    : Object = null;
+            var data        : Object = null;
             
             var payload     : String = Payload(oSession);
             var parameters  : String = ParametersString(oSession);
@@ -336,6 +338,9 @@ class Handlers
             // JsoN Payload
             // ----------------------------------------------------------------------------------------------------
             if(oSession.oRequest.headers.ExistsAndContains("Content-Type", "json")) {
+                response = Fiddler.WebFormats.JSON.JsonDecode(oSession.GetResponseBodyAsString());
+                data = response.JSONObject["data"];
+                
                 test.JSONObject["requestType"] = "JSON_APPLICATION";
                 test.JSONObject["jsonPayload"]["baseNode"] = clearIds(Payload(oSession));
             } else if(oSession.oRequest.headers.ExistsAndContains("Content-Type", "urlencoded")) {
@@ -393,67 +398,74 @@ class Handlers
             test.JSONObject["handleResponse"]["failLevel"]       = "ERROR";
             test.JSONObject["handleResponse"]["failureMessage"]  = "Failed";
             
-            // ====================================================================================================
-            // Response Checks (Common to all Tests)
-            // ----------------------------------------------------------------------------------------------------
-            checkObject = CheckObject("JSON", "$.success", "EQUAL", "PLAIN", readResponseValue(oSession, "success"));
-            test.JSONObject["handleResponse"]["responseChecks"].Add(checkObject.JSONObject);
-            
-            checkObject = CheckObject("JSON", "$.data", "EQUAL", "PLAIN", "");
-            if (data != null) checkObject.JSONObject["compareMethod"] = "NOTEMPTY";
-            test.JSONObject["handleResponse"]["responseChecks"].Add(checkObject.JSONObject);
-            
-            checkObject = CheckObject("JSON", "$.message", "EQUAL", "PLAIN", readResponseValue(oSession, "message"));
-            test.JSONObject["handleResponse"]["responseChecks"].Add(checkObject.JSONObject);
-            
-            checkObject = CheckObject("JSON", "$.records", "EQUAL", "PLAIN", "");
-            if (!readResponseValue(oSession, "records").Equals(String.Empty)) {
-                checkObject.JSONObject["compareMethod"] = "SIZEEQUAL";
-                checkObject.JSONObject["targetKey"]     = readResponseValue(oSession, "total");
-            }
-            test.JSONObject["handleResponse"]["responseChecks"].Add(checkObject.JSONObject);
-            
-            checkObject = CheckObject("JSON", "$.total", "EQUAL", "PLAIN", readResponseValue(oSession, "total"));
-            test.JSONObject["handleResponse"]["responseChecks"].Add(checkObject.JSONObject);
-            
-            // ====================================================================================================
-            // Test Operations and Response Checks for $.data Elements
-            // ----------------------------------------------------------------------------------------------------
-            if (data != null) {
-                for (var dataAttr:DictionaryEntry in data) {
-                    var dataKey: String     = dataAttr.Key;
-                    var dataValue: String   = dataAttr.Value;
-                    if (dataValue == null || dataValue.Equals("undefined")) {
-                        dataValue = String.Empty;
-                    }
-                    
-                    checkObject = CheckObject("JSON", "$.data." + dataKey, "NOTEMPTY", "PLAIN", "");
-                    if (dataValue.Equals(String.Empty) || dataValue.Equals("UNDEFINED")) {
-                        checkObject.JSONObject["compareMethod"]  = "EQUAL";
-                        checkObject.JSONObject["targetKey"]      = dataValue;
-                    }
-                    
-                    tesOpObject = Fiddler.WebFormats.JSON.JsonDecode('{method: "", sourceType: "", sourceKey: "", targetKey: ""}');
-                    tesOpObject.JSONObject["method"]        = "ASSIGN";
-                    tesOpObject.JSONObject["sourceType"]    = "JSON";
-                    tesOpObject.JSONObject["sourceKey"]     = "$.data." + dataKey;
-                    tesOpObject.JSONObject["targetKey"]     = "data_" + dataKey;
-                    
+            if ((oSession.oResponse.headers.ExistsAndContains("Content-Type", "json"))) {
+                response = Fiddler.WebFormats.JSON.JsonDecode(oSession.GetResponseBodyAsString());
+                data = response.JSONObject["data"];
+                
+                // ====================================================================================================
+                // Response Checks (Common to all Tests)
+                // ----------------------------------------------------------------------------------------------------
+                if ((oSession.oResponse.headers.ExistsAndContains("Content-Type", "json"))) {
+                    checkObject = CheckObject("JSON", "$.success", "EQUAL", "PLAIN", readResponseValue(oSession, "success"));
                     test.JSONObject["handleResponse"]["responseChecks"].Add(checkObject.JSONObject);
-                    test.JSONObject["testOps"].Add(tesOpObject.JSONObject);
+                
+                    checkObject = CheckObject("JSON", "$.data", "EQUAL", "PLAIN", "");
+                    if (data != null) checkObject.JSONObject["compareMethod"] = "NOTEMPTY";
+                    test.JSONObject["handleResponse"]["responseChecks"].Add(checkObject.JSONObject);
+                
+                    checkObject = CheckObject("JSON", "$.message", "EQUAL", "PLAIN", readResponseValue(oSession, "message"));
+                    test.JSONObject["handleResponse"]["responseChecks"].Add(checkObject.JSONObject);
+                
+                    checkObject = CheckObject("JSON", "$.records", "EQUAL", "PLAIN", "");
+                    if (!readResponseValue(oSession, "records").Equals(String.Empty)) {
+                        checkObject.JSONObject["compareMethod"] = "SIZEEQUAL";
+                        checkObject.JSONObject["targetKey"]     = readResponseValue(oSession, "total");
+                    }
+                    test.JSONObject["handleResponse"]["responseChecks"].Add(checkObject.JSONObject);
+                
+                    checkObject = CheckObject("JSON", "$.total", "EQUAL", "PLAIN", readResponseValue(oSession, "total"));
+                    test.JSONObject["handleResponse"]["responseChecks"].Add(checkObject.JSONObject);
                 }
- 
+                
+                // ====================================================================================================
+                // Test Operations and Response Checks for $.data Elements
+                // ----------------------------------------------------------------------------------------------------
+                if (data != null) {
+                    for (var dataAttr:DictionaryEntry in data) {
+                        var dataKey: String     = dataAttr.Key;
+                        var dataValue: String   = dataAttr.Value;
+                        if (dataValue == null || dataValue.Equals("undefined")) {
+                            dataValue = String.Empty;
+                        }
+                    
+                        checkObject = CheckObject("JSON", "$.data." + dataKey, "NOTEMPTY", "PLAIN", "");
+                        if (dataValue.Equals(String.Empty) || dataValue.Equals("UNDEFINED")) {
+                            checkObject.JSONObject["compareMethod"]  = "EQUAL";
+                            checkObject.JSONObject["targetKey"]      = dataValue;
+                        }
+                    
+                        tesOpObject = Fiddler.WebFormats.JSON.JsonDecode('{method: "", sourceType: "", sourceKey: "", targetKey: ""}');
+                        tesOpObject.JSONObject["method"]        = "ASSIGN";
+                        tesOpObject.JSONObject["sourceType"]    = "JSON";
+                        tesOpObject.JSONObject["sourceKey"]     = "$.data." + dataKey;
+                        tesOpObject.JSONObject["targetKey"]     = "data_" + dataKey;
+                    
+                        test.JSONObject["handleResponse"]["responseChecks"].Add(checkObject.JSONObject);
+                        test.JSONObject["testOps"].Add(tesOpObject.JSONObject);
+                    }
+    
+                }
+                
+                // ====================================================================================================
+                // Test Operation for Total
+                // ----------------------------------------------------------------------------------------------------
+                tesOpObject = Fiddler.WebFormats.JSON.JsonDecode('{method: "", sourceType: "", sourceKey: "", targetKey: ""}');
+                tesOpObject.JSONObject["method"]        = "ASSIGN";
+                tesOpObject.JSONObject["sourceType"]    = "JSON";
+                tesOpObject.JSONObject["sourceKey"]     = "$.total";
+                tesOpObject.JSONObject["targetKey"]     = "total";
+                test.JSONObject["testOps"].Add(tesOpObject.JSONObject);
             }
-            
-            // ====================================================================================================
-            // Test Operation for Total
-            // ----------------------------------------------------------------------------------------------------
-            tesOpObject = Fiddler.WebFormats.JSON.JsonDecode('{method: "", sourceType: "", sourceKey: "", targetKey: ""}');
-            tesOpObject.JSONObject["method"]        = "ASSIGN";
-            tesOpObject.JSONObject["sourceType"]    = "JSON";
-            tesOpObject.JSONObject["sourceKey"]     = "$.total";
-            tesOpObject.JSONObject["targetKey"]     = "total";
-            test.JSONObject["testOps"].Add(tesOpObject.JSONObject);
             
             return Fiddler.WebFormats.JSON.JsonEncode(test.JSONObject);
         }
@@ -494,7 +506,7 @@ class Handlers
     // Date        : November 02, 2014
     // ====================================================================================================    
     public static function responseReady(oSession: Session): boolean {
-        return oSession.responseCode != 0 && oSession.oResponse.headers.ExistsAndContains("Content-Type", "json");
+        return oSession.responseCode != 0 && (oSession.oResponse.headers.ExistsAndContains("Content-Type", "json") || oSession.oResponse.headers.ExistsAndContains("Content-Type", "text/html"));
     }
     
     public static function readResponseValue(oSession: Session, value: String): String {
@@ -667,6 +679,12 @@ class Handlers
         // Add the ability to show requests comming from eclipse
         // ----------------------------------------------------------------------------------------------------
         if (oSession.host.toLowerCase() == "fiddler:8080") oSession.host = "resolve:8080";
+        if (oSession.host.toLowerCase() == "192.168.1.126:8080") oSession.host = "resolve:8080";
+        
+        // ====================================================================================================
+        // Hide logins
+        // ----------------------------------------------------------------------------------------------------
+        if (oSession.fullUrl.Contains("/login")) oSession["ui-hide"] = "do not want to see";
         
         // ====================================================================================================
         // Hide Client Poll Requests
